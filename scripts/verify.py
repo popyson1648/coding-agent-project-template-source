@@ -215,7 +215,7 @@ def check_publish_workflow() -> None:
         "- main",
         "actions/create-github-app-token@v2",
         "actions/checkout@v4",
-        "client-id: ${{ vars.APP_CLIENT_ID }}",
+        "app-id: ${{ vars.APP_CLIENT_ID }}",
         "private-key: ${{ secrets.APP_PRIVATE_KEY }}",
         "repository: popyson1648/coding-agent-project-template",
         "path: public-template",
