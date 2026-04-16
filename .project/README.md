@@ -19,6 +19,7 @@ Everything outside that subtree is management-only material for maintaining and 
 
 ## Related Documents
 
+- `.project/conventions.md`
 - `.project/structure.md`
 - `.project/release.md`
 - `.decisions/template-publication-model.md`
