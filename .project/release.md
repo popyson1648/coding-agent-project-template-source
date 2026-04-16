@@ -17,7 +17,7 @@ Run a release whenever `coding-agent-project-template/` changes and the public t
 
 ## Required GitHub Configuration
 
-- Source repository Actions variable: `APP_CLIENT_ID` with the GitHub App numeric app ID
+- Source repository Actions variable: `APP_ID` with the GitHub App numeric app ID
 - Source repository secret: `APP_PRIVATE_KEY`
 - GitHub App installation target: `popyson1648/coding-agent-project-template`
 - GitHub App repository permission: `Contents: Read and write`

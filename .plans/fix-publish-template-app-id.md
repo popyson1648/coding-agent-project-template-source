@@ -18,7 +18,7 @@ Fix the failing `Publish Public Template` GitHub Actions workflow so the public 
 
 ## Assumptions
 
-- The GitHub Actions variable `APP_CLIENT_ID` currently stores the GitHub App numeric app ID or can be renamed/documented to do so.
+- The GitHub Actions variable `APP_ID` stores the GitHub App numeric app ID.
 - The failure is caused by the workflow using `client-id` where the action now requires `app-id`.
 
 ## Steps
@@ -35,4 +35,4 @@ Fix the failing `Publish Public Template` GitHub Actions workflow so the public 
 
 ## Open Issues
 
-- If `APP_CLIENT_ID` is actually storing an OAuth client ID rather than a GitHub App ID, the workflow will still fail after the input rename and the repository variable itself will need to be corrected in GitHub settings.
+- If `APP_ID` is not the GitHub App numeric app ID, the workflow will still fail and the repository variable value will need to be corrected in GitHub settings.
