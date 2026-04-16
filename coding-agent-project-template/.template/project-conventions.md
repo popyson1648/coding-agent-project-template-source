@@ -3,7 +3,7 @@
 ## Naming
 
 - Use short, descriptive task slugs in branch names.
-- Prefer branch names in the form `feature/phase{N}-{M}-{slug}` when implementing work from a plan.
+- Prefer `feature/phase{N}-{M}-{slug}` for plan-driven work and `feature/issue-{N}-{slug}` for direct issue work.
 
 ## Code Style
 
@@ -18,7 +18,7 @@
   - group only the work needed for one self-contained chunk
 - Stop for clarification only when the selected step must be split again because it grew beyond one reviewable chunk, or when the chunk depends on an unmet external prerequisite.
 - Treat one request as one chunk, one branch, and one PR unless the user explicitly asks for a different grouping.
-- Update `Progress` status with `[ ]` for not started, `[~]` for in progress, and `[x]` for complete.
+- Update `Progress` with `[ ]` before work starts, `[~]` while the selected chunk is in progress, and `[x]` only after verification passes.
 
 ## PR Handling
 
@@ -29,7 +29,8 @@
 
 ## Forbidden Patterns
 
-- Do not implement multiple unrelated chunks on the same branch by default.
+- Do not implement multiple chunks on the same branch by default.
 - Do not skip the `[~]` state when work has started but is not yet complete.
+- Do not merge immediately after opening a PR without checking for bot feedback.
 - Do not list inactive or irrelevant bots in PR handling guidance.
 - Do not use web UI steps when the same GitHub operation can be done with `gh`.

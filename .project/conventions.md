@@ -44,6 +44,7 @@
 ## Forbidden Patterns
 
 - Do not implement multiple chunks on the same branch by default.
+- Do not skip the `[~]` state when work has started but is not yet complete.
 - Do not merge immediately after opening a PR without checking for bot feedback.
 - Do not list inactive, unused, or non-review automation as PR bots.
 - Do not rely on manual browser actions for routine GitHub tasks that `gh` can perform.
