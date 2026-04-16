@@ -1,49 +1,59 @@
 version = 1
 
 [phases.format]
-enabled = true
+enabled = false
 command = ""
+reason = "No source-repository formatter is configured."
 
 [phases.lint]
 enabled = true
-command = ""
+command = "python3 scripts/verify.py --check source-layout --check public-template --check publish-workflow"
 
 [phases.typecheck]
 enabled = true
-command = ""
+command = "python3 scripts/verify.py --check python-syntax"
 
 [phases.build]
-enabled = true
+enabled = false
 command = ""
+reason = "This repository publishes files and workflows but has no build step."
 
 [phases.test_unit]
-enabled = true
+enabled = false
 command = ""
+reason = "The repository uses structural verification instead of unit tests."
 
 [phases.test_integration]
 enabled = false
 command = ""
+reason = "Publishing integration is exercised in GitHub Actions."
 
 [phases.test_e2e]
 enabled = false
 command = ""
+reason = "No end-to-end test suite is configured."
 
 [phases.test_component]
 enabled = false
 command = ""
+reason = "No component test suite is configured."
 
 [phases.test_contract]
 enabled = false
 command = ""
+reason = "No contract test suite is configured."
 
 [phases.accessibility]
 enabled = false
 command = ""
+reason = "This repository does not ship UI surfaces."
 
 [phases.performance]
 enabled = false
 command = ""
+reason = "No performance benchmark is configured."
 
 [phases.bundle_size]
 enabled = false
 command = ""
+reason = "This repository does not produce bundles."

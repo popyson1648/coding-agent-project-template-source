@@ -1,0 +1,63 @@
+name: Publish Public Template
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-public-template
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+
+      - name: Create GitHub App token for public template repository
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: popyson1648
+          repositories: |
+            coding-agent-project-template
+          permission-contents: write
+
+      - name: Checkout public template repository
+        uses: actions/checkout@v4
+        with:
+          repository: popyson1648/coding-agent-project-template
+          ref: main
+          token: ${{ steps.app-token.outputs.token }}
+          path: public-template
+
+      - name: Sync template contents
+        env:
+          SOURCE_DIR: coding-agent-project-template/
+          TARGET_DIR: public-template/
+        run: |
+          rsync -a --delete --exclude='.git/' "$SOURCE_DIR" "$TARGET_DIR"
+
+      - name: Commit and push when synced content changed
+        working-directory: public-template
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No changes to publish."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all
+          git commit -m "Publish template from source ${SOURCE_SHA}"
+          git push

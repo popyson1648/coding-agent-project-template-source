@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import subprocess
 import sys
-from collections.abc import Callable
 from pathlib import Path
 import tomllib
 
@@ -32,54 +31,6 @@ MODE_FLAG_MAP = {
     "pre-push": "run_pre_push",
     "ci": "run_in_ci",
 }
-
-SOURCE_ROOT = Path(__file__).resolve().parent.parent
-PUBLIC_TEMPLATE_ROOT = SOURCE_ROOT / "coding-agent-project-template"
-PUBLISH_WORKFLOW = SOURCE_ROOT / ".github" / "workflows" / "publish-template.yml"
-
-SOURCE_REQUIRED_PATHS = [
-    Path(".plans"),
-    Path(".decisions"),
-    Path(".project"),
-    Path(".template"),
-    Path(".project/verification.toml"),
-    Path(".github/workflows/ci.yml"),
-    Path("scripts/verify.py"),
-]
-
-PUBLIC_TEMPLATE_REQUIRED_PATHS = [
-    Path("AGENTS.md"),
-    Path("CLAUDE.md"),
-    Path("GEMINI.md"),
-    Path(".plans/TEMPLATE.md"),
-    Path(".decisions/TEMPLATE.md"),
-    Path(".project/README.md"),
-    Path(".project/build.md"),
-    Path(".project/conventions.md"),
-    Path(".project/release.md"),
-    Path(".project/structure.md"),
-    Path(".project/testing.md"),
-    Path(".project/verification.toml"),
-    Path(".template/ci.yml"),
-    Path(".template/pre-commit-config.yaml"),
-    Path(".template/project-build.md"),
-    Path(".template/project-conventions.md"),
-    Path(".template/project-readme.md"),
-    Path(".template/project-release.md"),
-    Path(".template/project-structure.md"),
-    Path(".template/project-testing.md"),
-    Path(".template/verification.toml"),
-    Path(".github/workflows/ci.yml"),
-    Path(".pre-commit-config.yaml"),
-    Path("scripts/verify.py"),
-]
-
-PYTHON_SYNTAX_PATHS = [
-    SOURCE_ROOT / "scripts" / "verify.py",
-    PUBLIC_TEMPLATE_ROOT / "scripts" / "verify.py",
-]
-
-CHECK_HANDLERS: dict[str, Callable[[], None]] = {}
 
 
 def load_config(config_path: Path) -> dict:
@@ -167,92 +118,6 @@ def run_command(command: str) -> int:
     return completed.returncode
 
 
-def register_check(name: str):
-    def decorator(func):
-        CHECK_HANDLERS[name] = func
-        return func
-
-    return decorator
-
-
-def ensure_paths_exist(root: Path, relative_paths: list[Path], scope: str) -> None:
-    missing = [str(path) for path in relative_paths if not (root / path).exists()]
-    if missing:
-        print(f"{scope} is missing required paths: {', '.join(missing)}", file=sys.stderr)
-        raise SystemExit(2)
-
-
-@register_check("source-layout")
-def check_source_layout() -> None:
-    ensure_paths_exist(SOURCE_ROOT, SOURCE_REQUIRED_PATHS, "source repository")
-    if not PUBLIC_TEMPLATE_ROOT.is_dir():
-        print("public template directory is missing", file=sys.stderr)
-        raise SystemExit(2)
-
-
-@register_check("public-template")
-def check_public_template() -> None:
-    if not PUBLIC_TEMPLATE_ROOT.is_dir():
-        print("public template directory is missing", file=sys.stderr)
-        raise SystemExit(2)
-
-    ensure_paths_exist(PUBLIC_TEMPLATE_ROOT, PUBLIC_TEMPLATE_REQUIRED_PATHS, "public template")
-
-    if (PUBLIC_TEMPLATE_ROOT / ".git").exists():
-        print("public template must not be a nested git repository", file=sys.stderr)
-        raise SystemExit(2)
-
-
-@register_check("publish-workflow")
-def check_publish_workflow() -> None:
-    if not PUBLISH_WORKFLOW.exists():
-        print(f"publish workflow not found: {PUBLISH_WORKFLOW}", file=sys.stderr)
-        raise SystemExit(2)
-
-    content = PUBLISH_WORKFLOW.read_text(encoding="utf-8")
-    required_snippets = [
-        "branches:",
-        "- main",
-        "actions/create-github-app-token@v2",
-        "actions/checkout@v4",
-        "client-id: ${{ vars.APP_CLIENT_ID }}",
-        "private-key: ${{ secrets.APP_PRIVATE_KEY }}",
-        "repository: popyson1648/coding-agent-project-template",
-        "path: public-template",
-        "rsync -a --delete --exclude='.git/'",
-        "git status --porcelain",
-        "git push",
-    ]
-    missing = [snippet for snippet in required_snippets if snippet not in content]
-    if missing:
-        print(
-            f"publish workflow is missing required content: {', '.join(missing)}",
-            file=sys.stderr,
-        )
-        raise SystemExit(2)
-
-
-@register_check("python-syntax")
-def check_python_syntax() -> None:
-    for path in PYTHON_SYNTAX_PATHS:
-        source = path.read_text(encoding="utf-8")
-        compile(source, str(path), "exec")
-
-
-def run_named_checks(names: list[str]) -> int:
-    unknown = [name for name in names if name not in CHECK_HANDLERS]
-    if unknown:
-        print(f"unknown checks: {', '.join(sorted(unknown))}", file=sys.stderr)
-        return 2
-
-    for name in names:
-        print(f"[verify] check: {name}")
-        CHECK_HANDLERS[name]()
-        print(f"[verify] passed: {name}")
-
-    return 0
-
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run repository verification phases from .project/verification.toml."
@@ -279,21 +144,12 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="List selected phases and exit",
     )
-    parser.add_argument(
-        "--check",
-        action="append",
-        default=[],
-        help="Run a built-in repository check by name",
-    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
     config_path = Path(args.config)
-
-    if args.check:
-        return run_named_checks(args.check)
 
     config = load_config(config_path)
     phases = collect_phases(config)
