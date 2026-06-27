@@ -42,7 +42,8 @@ Resolve issue `#16` by requiring evidence-based web research when a claim is unc
 
 - Run `python3 scripts/verify.py --mode all`.
 - Run `git diff --check`.
-- Compare the three template-facing convention files byte-for-byte.
+- Compare `.template/project-conventions.md`, `coding-agent-project-template/.project/conventions.md`, and `coding-agent-project-template/.template/project-conventions.md` byte-for-byte.
+- Review `.project/conventions.md` against the template-facing wording for policy consistency while preserving source-repository-specific guidance.
 - Manually verify the result against issue `#16`.
 
 ## Open Issues
