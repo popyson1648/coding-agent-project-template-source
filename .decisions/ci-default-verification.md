@@ -14,7 +14,8 @@ Accepted
 
 ## Decision
 
-The default `verification.toml` shipped by the template starts every phase with `enabled = false` and a `reason`.
+The default `verification.toml` shipped by the template starts every phase with `enabled = false`.
+The core `format`, `lint`, `typecheck`, `build`, and `test_unit` phases include a `reason` that explains how to enable them.
 A project generated from the template runs `python3 scripts/verify.py --mode ci` in CI, selects no phases, and reports success.
 Each phase is enabled and given a command when the matching tool is actually added.
 
@@ -32,12 +33,12 @@ Every project created from the template therefore failed CI on its first push be
 
 ## Reason
 
-Disabling phases with a reason matches the source repository's own pattern for not-yet-configured checks.
+Disabling the core phases with reasons matches the source repository's own pattern for not-yet-configured checks.
 It keeps `verify.py` running in CI by default while letting a fresh project stay green until its owner configures real checks.
 
 ## Consequences
 
-- `.template/verification.toml`, `coding-agent-project-template/.template/verification.toml`, and `coding-agent-project-template/.project/verification.toml` ship phases disabled with reasons.
+- `.template/verification.toml`, `coding-agent-project-template/.template/verification.toml`, and `coding-agent-project-template/.project/verification.toml` ship every phase disabled and document reasons for the core phases.
 - Project owners must enable a phase and set its command when they add the matching tool.
 - The source repository's own `.project/verification.toml` keeps its real commands and is not affected.
 
