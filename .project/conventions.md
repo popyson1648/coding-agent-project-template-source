@@ -60,6 +60,16 @@
 
 - When a branch reaches a major stopping point, such as finishing its goal and verification, tell the user to clear context before the next large task.
 
+## Fix and Verification Integrity
+
+- Reproduce and investigate a warning, error, or failing check before changing code or tool configuration.
+- Fix the underlying cause, then rerun the original failing check and the relevant verification suite.
+- Do not disable checks, add broad ignores, lower severity, comment out tests, weaken assertions, or alter expected output solely to obtain a passing result.
+- Allow a suppression only when evidence confirms a false positive, upstream tool defect, unavoidable compatibility constraint, or explicitly accepted risk and no practical direct fix is available.
+- Keep an allowed exception to the smallest practical scope, explain the reason next to it, preserve relevant coverage, and record a removal condition or tracked follow-up when temporary.
+- Require recorded user or maintainer approval before accepting a material unresolved risk.
+- Report any warning, failure, or uncertainty that remains after verification.
+
 ## Forbidden Patterns
 
 - Do not implement multiple chunks on the same branch by default.
