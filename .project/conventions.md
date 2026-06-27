@@ -10,6 +10,16 @@
 - Keep source-side operational docs aligned with the published template rules where the same workflow applies.
 - Write contributor guidance as explicit rules, not as implied team knowledge.
 
+## Evidence and Research
+
+- Inspect the repository and current environment before relying on external assumptions.
+- Before a material proposal, decision, or implementation depends on an uncertain, externally defined, or version-dependent fact, search the web and verify it.
+- Prefer current official documentation, specifications, standards, upstream source, and upstream release notes. Use secondary sources only when primary evidence is unavailable, and state that limitation.
+- Increase the depth and independence of corroboration with the impact and uncertainty of the decision.
+- Cite the evidence used and separate verified facts from inferences, proposals, and unresolved uncertainty.
+- Do not put secrets, credentials, private source, or other sensitive data in search queries.
+- Web research is optional for stable self-evident facts and facts established directly from the local repository or environment.
+
 ## Review Expectations
 
 - If implementation starts from an approved plan without a user-selected phase or step range, select exactly one reviewable chunk:
