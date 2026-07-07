@@ -12,7 +12,7 @@ Run a release whenever `coding-agent-project-template/` changes and the public t
 
 ## Required Checks
 
-- `python3 scripts/verify.py --mode all`
+- `python3 scripts/verify.py`
 - Successful `Publish Public Template` workflow run on the source repository
 
 ## Required GitHub Configuration

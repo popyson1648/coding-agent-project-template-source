@@ -1,5 +1,10 @@
 version = 1
 
+[phases.secrets]
+enabled = false
+command = ""
+reason = "gitleaks is not installed in this environment yet. Install gitleaks and set: gitleaks git --no-banner ."
+
 [phases.format]
 enabled = false
 command = ""

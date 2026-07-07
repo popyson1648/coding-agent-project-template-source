@@ -15,4 +15,4 @@ jobs:
           python-version: "3.11"
 
       - name: Run verification
-        run: python3 scripts/verify.py --mode ci
+        run: python3 scripts/verify.py
