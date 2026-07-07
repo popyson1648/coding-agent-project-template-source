@@ -1,5 +1,17 @@
 # Plan
 
+## Status
+
+done
+
+## Date
+
+2026-07-07
+
+## Issues
+
+#19, #20, #21, #24
+
 ## Goal
 
 Document interaction rules for agents: check current state before proposing or acting, keep facts,
