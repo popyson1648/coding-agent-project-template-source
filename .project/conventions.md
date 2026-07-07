@@ -14,6 +14,15 @@
 - Document material tradeoffs. If a constraint makes debt unavoidable, record its reason, scope, impact, and follow-up or revisit condition in a tracked task or decision.
 - Treat refactoring required by genuinely new requirements as normal evolution, not proof that the earlier implementation failed this standard.
 
+## Test Timing
+
+- Write or update tests in the same chunk as the change they cover; a change that needs tests is not complete, and is not merged, without them.
+- Choose the technique per task instead of fixing one methodology:
+  - test-first (TDD) fits when the expected inputs and outputs are clear up front; state that intent explicitly so implementation is not faked against unwritten tests
+  - writing tests alongside or immediately after the code fits when the design is still being discovered
+- Start a bug fix with a failing test that reproduces the bug whenever the test harness can express it, and keep that test after the fix.
+- Deferring tests to a later chunk requires the same recorded approval as any other known deficiency under Durable Implementation.
+
 ## Code Style
 
 - Keep source-side operational docs aligned with the published template rules where the same workflow applies.
