@@ -10,8 +10,11 @@ Run a release whenever `coding-agent-project-template/` changes and the public t
 2. Let `.github/workflows/publish-template.yml` mirror `coding-agent-project-template/` into `popyson1648/coding-agent-project-template`.
 3. Confirm that the workflow either pushed a commit to the public repository or reported that no sync was needed.
 
-When content changed, the workflow also stamps `.template-version` (source commit and publish date)
-into the public repository; the file exists only there, never in the source subtree.
+When content changed, the workflow also stamps `.template-version` (source commit, publish date, and
+release tag) into the public repository and cuts a `vYYYY.MM.DD` GitHub Release there with
+auto-generated notes (`gh release create --generate-notes`, same-day republishes get a `.2`, `.3`,
+... suffix). The file and the release exist only in the public repository, never in the source
+subtree.
 
 ## Required Checks
 
