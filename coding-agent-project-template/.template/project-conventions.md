@@ -46,6 +46,17 @@
 - Keep any repository-specific bot list under the PR handling section and include only bots that are materially active in the current workflow, with what they do and how to mention them.
 - At a major stopping point, such as finishing all planned work on a branch, tell the user to clear context before the next large task.
 
+## Troubleshooting
+
+- Start from the observed problem, not from a guessed cause: capture the exact error message, the expected behavior, the actual behavior, and the reproduction conditions.
+- When the problem is actively disrupting users or work, stabilize first, then look for the cause.
+- Consult sources in order of reliability: the exact error message and logs, official documentation, the upstream issue tracker and known bugs, release notes and changelogs, local configuration and version differences, and recent changes to the repository or environment.
+- Form explicit hypotheses and test them one at a time against observations; prefer the simplest explanation that fits all the facts, and treat recent changes as prime suspects.
+- Keep observed facts, tested results, and untested hypotheses separated. Investigation alone does not confirm a cause; a cause is confirmed when it reproduces the problem or makes it appear and disappear predictably.
+- Watch for the standard traps: correlation is not causation, and "the same as last time" is a hypothesis, not a conclusion.
+- Use unverified blog posts and anecdotes only as leads, and confirm them against primary sources before relying on them.
+- Scale investigation depth to the impact of the problem; small problems do not require long external research. Any web research follows the Evidence and Research rules.
+
 ## Fix and Verification Integrity
 
 - Reproduce and investigate a warning, error, or failing check before changing code or tool configuration.
