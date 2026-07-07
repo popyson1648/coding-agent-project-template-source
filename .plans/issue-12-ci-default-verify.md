@@ -1,5 +1,9 @@
 # Plan
 
+## Status
+
+done
+
 ## Goal
 
 Fix issue `#12` so a project generated from the template passes CI on its first push while still running `verify.py` by default.

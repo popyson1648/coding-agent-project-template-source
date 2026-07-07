@@ -1,5 +1,9 @@
 # Plan
 
+## Status
+
+done
+
 ## Goal
 
 Resolve issue `#16` by requiring evidence-based web research when a claim is uncertain, version-dependent, or material to correctness, while avoiding unnecessary searches for stable, self-evident facts.
