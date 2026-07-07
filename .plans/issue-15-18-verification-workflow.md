@@ -1,5 +1,17 @@
 # Plan
 
+## Status
+
+done
+
+## Date
+
+2026-07-07
+
+## Issues
+
+#15, #18
+
 ## Goal
 
 Align the pre-commit and CI wiring with the agreed verification workflow (issue #15) and add a
