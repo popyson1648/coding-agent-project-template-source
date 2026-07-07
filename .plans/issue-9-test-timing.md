@@ -1,5 +1,17 @@
 # Plan
 
+## Status
+
+done
+
+## Date
+
+2026-07-07
+
+## Issues
+
+#9
+
 ## Goal
 
 Decide and document the stage at which tests are written, without locking development into a single
