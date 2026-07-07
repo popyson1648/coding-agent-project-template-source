@@ -1,5 +1,9 @@
 # Plan
 
+## Status
+
+done
+
 ## Goal
 
 Document the workflow changes required by issue `#1` so the source repository and the published template both describe the same agent operating rules.

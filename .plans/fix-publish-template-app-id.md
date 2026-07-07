@@ -1,5 +1,9 @@
 # Plan
 
+## Status
+
+done
+
 ## Goal
 
 Fix the failing `Publish Public Template` GitHub Actions workflow so the public template publish job can create an app token successfully.

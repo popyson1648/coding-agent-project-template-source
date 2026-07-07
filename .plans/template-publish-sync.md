@@ -1,5 +1,9 @@
 # Plan
 
+## Status
+
+done
+
 ## Goal
 
 Make `coding-agent-project-template-source` the source of truth for a public template repository whose published contents come only from `coding-agent-project-template/`.

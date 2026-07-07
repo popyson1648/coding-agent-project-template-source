@@ -1,5 +1,9 @@
 # Plan
 
+## Status
+
+done
+
 ## Goal
 
 Resolve issue `#25` by requiring root-cause fixes and preventing warnings, errors, and failing checks from being hidden merely to obtain a passing result.
