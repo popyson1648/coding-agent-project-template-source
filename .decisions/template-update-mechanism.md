@@ -69,4 +69,4 @@ identity at the cost of two workflow lines.
 ## Related
 
 - Issues: #38
-- Decisions: template-adoption-path.md, template-publication-model.md
+- Decisions: template-adoption-path.md, template-publication-model.md, template-release-versioning.md

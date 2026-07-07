@@ -1,5 +1,10 @@
 # Coding Agent Project Template
 
+**English** | [日本語](README.ja.md)
+
+[![CI](https://img.shields.io/github/actions/workflow/status/popyson1648/coding-agent-project-template/ci.yml?branch=main&label=CI)](https://github.com/popyson1648/coding-agent-project-template/actions/workflows/ci.yml)
+[![Latest Release](https://img.shields.io/github/v/release/popyson1648/coding-agent-project-template?label=release)](https://github.com/popyson1648/coding-agent-project-template/releases)
+
 A project harness for working with coding agents (Claude Code, Gemini CLI, Codex, and similar).
 It ships shared agent rules, a plan and decision log, project documentation skeletons, and a single
 verification entry point wired into pre-commit and CI.
@@ -61,8 +66,10 @@ GitHub's "Use this template" only creates new repositories, so adoption is a fil
 
 ## Keep Up With Template Updates
 
-Every published change to this template also refreshes `.template-version` (the source commit and
-publish date). The file identifies which template version a project carries; never edit it by hand.
+Every published change to this template also refreshes `.template-version` (the source commit,
+publish date, and release tag) and cuts a dated [GitHub Release](https://github.com/popyson1648/coding-agent-project-template/releases)
+with auto-generated notes. Check the release badge above or the Releases page for a human-readable
+version; `.template-version` is the machine-readable equivalent. Never edit either by hand.
 
 ### Recommended: merge from the template remote
 

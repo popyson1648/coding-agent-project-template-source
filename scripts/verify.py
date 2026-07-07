@@ -50,6 +50,7 @@ SOURCE_REQUIRED_PATHS = [
 
 PUBLIC_TEMPLATE_REQUIRED_PATHS = [
     Path("README.md"),
+    Path("README.ja.md"),
     Path("AGENTS.md"),
     Path("CLAUDE.md"),
     Path("GEMINI.md"),
@@ -225,6 +226,9 @@ def check_publish_workflow() -> None:
         "git status --porcelain",
         "> .template-version",
         "git push",
+        "gh release create",
+        "--generate-notes",
+        "release: %s",
     ]
     missing = [snippet for snippet in required_snippets if snippet not in content]
     if missing:
