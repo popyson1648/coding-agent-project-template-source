@@ -44,7 +44,7 @@ jobs:
           SOURCE_DIR: coding-agent-project-template/
           TARGET_DIR: public-template/
         run: |
-          rsync -a --delete --exclude='.git/' "$SOURCE_DIR" "$TARGET_DIR"
+          rsync -a --delete --exclude='.git/' --exclude='.template-version' "$SOURCE_DIR" "$TARGET_DIR"
 
       - name: Commit and push when synced content changed
         working-directory: public-template
@@ -55,6 +55,9 @@ jobs:
             echo "No changes to publish."
             exit 0
           fi
+
+          printf 'source-commit: %s\npublished: %s\n' \
+            "$SOURCE_SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .template-version
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

@@ -220,8 +220,9 @@ def check_publish_workflow() -> None:
         "private-key: ${{ secrets.APP_PRIVATE_KEY }}",
         "repository: popyson1648/coding-agent-project-template",
         "path: public-template",
-        "rsync -a --delete --exclude='.git/'",
+        "rsync -a --delete --exclude='.git/' --exclude='.template-version'",
         "git status --porcelain",
+        "> .template-version",
         "git push",
     ]
     missing = [snippet for snippet in required_snippets if snippet not in content]

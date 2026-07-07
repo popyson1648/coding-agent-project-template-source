@@ -10,6 +10,9 @@ Run a release whenever `coding-agent-project-template/` changes and the public t
 2. Let `.github/workflows/publish-template.yml` mirror `coding-agent-project-template/` into `popyson1648/coding-agent-project-template`.
 3. Confirm that the workflow either pushed a commit to the public repository or reported that no sync was needed.
 
+When content changed, the workflow also stamps `.template-version` (source commit and publish date)
+into the public repository; the file exists only there, never in the source subtree.
+
 ## Required Checks
 
 - `python3 scripts/verify.py --mode all`

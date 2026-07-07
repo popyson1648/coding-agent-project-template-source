@@ -59,6 +59,55 @@ GitHub's "Use this template" only creates new repositories, so adoption is a fil
    rm -rf .tmp/agent-template
    ```
 
+## Keep Up With Template Updates
+
+Every published change to this template also refreshes `.template-version` (the source commit and
+publish date). The file identifies which template version a project carries; never edit it by hand.
+
+### Recommended: merge from the template remote
+
+This works whether the project was created with "Use this template" or adopted by file copy.
+
+```bash
+git remote add template https://github.com/popyson1648/coding-agent-project-template.git
+git fetch template
+git merge template/main --allow-unrelated-histories   # first sync only
+```
+
+Every later sync is an ordinary three-way merge:
+
+```bash
+git fetch template && git merge template/main
+```
+
+- Git records the merge base, so your local customizations survive and conflicts appear only where
+  both sides changed the same lines. Resolve them, run `python3 scripts/verify.py`, then commit.
+- Do not squash template merges: squashing discards the merge base, and every future sync conflicts
+  from scratch.
+
+### Alternative: apply the template diff without adding a remote
+
+If the project has a `.template-version`, you can apply only the template's old-to-new diff:
+
+```bash
+git clone https://github.com/popyson1648/coding-agent-project-template .tmp/template
+BASE=$(git -C .tmp/template log --format=%H \
+  --grep "$(sed -n 's/^source-commit: //p' .template-version)")
+git -C .tmp/template diff "$BASE"..HEAD | git apply --reject
+rm -rf .tmp/template
+```
+
+Resolve any `.rej` files by hand (the diff also refreshes `.template-version`), run
+`python3 scripts/verify.py`, then commit. Prefer the merge path when possible; a real three-way
+merge resolves more cases than a blind patch.
+
+Projects adopted before `.template-version` existed should use the merge path; its first
+`--allow-unrelated-histories` sync establishes the merge base.
+
+For scheduled, automated update PRs, see the third-party
+[actions-template-sync](https://github.com/AndreasAugustin/actions-template-sync) action (needs its
+own token setup per project).
+
 ## Requirements
 
 - Python 3.11+ (for `scripts/verify.py`)
