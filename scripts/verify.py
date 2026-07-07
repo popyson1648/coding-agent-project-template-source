@@ -11,6 +11,7 @@ import tomllib
 
 
 DEFAULT_ORDER = [
+    "secrets",
     "format",
     "lint",
     "typecheck",
