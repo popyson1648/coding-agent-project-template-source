@@ -1,5 +1,17 @@
 # Plan
 
+## Status
+
+done
+
+## Date
+
+2026-07-07
+
+## Issues
+
+#23
+
 ## Goal
 
 Document how agents investigate, isolate, and judge problems the way professionals do, including a
