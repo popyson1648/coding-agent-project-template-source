@@ -48,6 +48,7 @@ SOURCE_REQUIRED_PATHS = [
 ]
 
 PUBLIC_TEMPLATE_REQUIRED_PATHS = [
+    Path("README.md"),
     Path("AGENTS.md"),
     Path("CLAUDE.md"),
     Path("GEMINI.md"),
