@@ -29,6 +29,30 @@
 - Do not put secrets, credentials, private source, or other sensitive data in search queries.
 - Web research is optional for stable self-evident facts and facts established directly from the local repository or environment.
 
+## Current State First
+
+- Before proposing, deciding, or acting, inspect the current state that can be checked: the working tree, configuration, documentation, the issue tracker, and any external service involved.
+- Report checked facts, inferences, and proposals as clearly separated things, and label any unverified assumption as unverified.
+- While the user is consulting, asking, or thinking out loud, do not create issues, post to external services, change files, or change settings without the user's confirmation.
+- When such a change looks necessary, present the intended approach or draft first and get confirmation.
+
+## Scoped Suggestions
+
+- Make an unrequested suggestion only when it clearly relates to the current work and most of the following hold:
+  - the current work measurably increases risk or operating burden
+  - deferring it carries a high rework cost
+  - the confirmation or setup cost is proportionate to the safety or maintainability gained
+  - no equivalent measure already exists, and that has been checked
+- Separate suggestions to act on now from suggestions that can wait, and mention the latter briefly instead of expanding them.
+- Judge from risk, rework cost, and confirmation cost; do not grow these rules into a trigger table or a per-task checklist.
+
+### Dependency Risk
+
+- Suggest reviewing dependency alerts and Dependabot when dependency risk grows: a package manager or lockfile is introduced, a dependency manifest is added, dependencies increase substantially, or a dependency with a large vulnerability impact arrives.
+- Check the current configuration before suggesting: repository Settings > Advanced Security (or the GitHub API) and whether `.github/dependabot.yml` exists.
+- Keep the three features distinct: Dependabot alerts (Settings; vulnerability notifications), Dependabot security updates (Settings; automatic fix PRs), and Dependabot version updates (`.github/dependabot.yml`; freshness PRs). All of them are usable for production code.
+- Propose version updates or auto-merge only after confirming the user's operating policy.
+
 ## Review Expectations
 
 - When a user asks to implement from an approved plan without naming a phase or step range, pick exactly one reviewable chunk:
@@ -58,6 +82,7 @@
 
 ## Forbidden Patterns
 
+- Do not create GitHub issues or other external artifacts that the user did not ask for.
 - Do not implement multiple chunks on the same branch by default.
 - Do not skip the `[~]` state when work has started but is not yet complete.
 - Do not merge immediately after opening a PR without checking for bot feedback.
