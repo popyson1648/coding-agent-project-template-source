@@ -39,6 +39,20 @@
 - Treat one request as one chunk, one branch, and one PR unless the user explicitly asks for a different grouping.
 - Update `Progress` with `[ ]` before work starts, `[~]` while the selected chunk is in progress, and `[x]` only after verification passes.
 
+## Web UI Verification
+
+- Use Chrome DevTools through the `chrome-devtools-mcp` MCP server as the default way to verify, debug, and optimize anything that runs in a browser; do not judge web UI changes from code alone.
+- Use the full toolset, choosing what the change calls for, not only screenshots:
+  - rendering and interaction: page navigation, input automation, screenshots
+  - runtime errors: console messages and script evaluation
+  - API traffic: network request inspection
+  - performance: performance traces and their insights
+  - release quality: Lighthouse audits as a quality gate
+  - device-specific behavior: device, network-speed, and CPU-throttling emulation
+  - memory leaks: heap snapshots
+- Setup is per environment: register `npx chrome-devtools-mcp@latest` as an MCP server (Claude Code: `/plugin marketplace add ChromeDevTools/chrome-devtools-mcp`, then `/plugin install chrome-devtools-mcp@chrome-devtools-plugins`). Requires Node.js LTS and Chrome.
+- If no browser or MCP server is available in the environment, state that limitation and use the closest available verification instead of silently skipping UI verification.
+
 ## PR Handling
 
 - After opening a PR, use `gh` for GitHub operations and wait for configured bot feedback before deciding whether more changes are needed.
