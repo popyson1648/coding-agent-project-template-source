@@ -16,6 +16,8 @@ Accepted
 
 Source and public-template workflows pin third-party actions to full 40-character commit SHAs and
 declare `permissions: contents: read` for CI-style workflows that only need repository checkout.
+Read-only checkout steps set `persist-credentials: false` so the workflow token is not left in the
+local git configuration for later steps.
 
 The publish workflow keeps repository-level `GITHUB_TOKEN` permissions read-only and uses a scoped
 GitHub App installation token only for the public-template repository write operations.
@@ -44,6 +46,8 @@ GitHub also documents policies that can require full-length SHA pinning for Acti
   explicit, reviewable, and portable across repositories.
 - Give publish workflow write permissions through `GITHUB_TOKEN`: rejected because writes target the
   separate public template repository and should remain scoped to the GitHub App installation token.
+- Persist checkout credentials in read-only jobs: rejected because later steps do not need git
+  credentials and leaving them available widens the token exposure surface.
 
 ## Reason
 
@@ -56,6 +60,8 @@ write credential for one generated-output repository.
 - Action references are less readable, so the matching major version is kept as an inline comment.
 - Dependabot version updates are needed to keep pinned SHAs current.
 - `scripts/verify.py` enforces full SHA pins and read-only workflow permissions.
+- The public template checkout in the publish workflow keeps credentials because the later push uses
+  that checkout's repository authentication.
 
 ## Revisit Conditions
 

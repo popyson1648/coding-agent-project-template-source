@@ -361,13 +361,14 @@ def check_github_actions() -> None:
             f"workflow actions are not pinned to full commit SHAs: {', '.join(unpinned_refs)}",
             file=sys.stderr,
         )
-        raise SystemExit(2)
 
     if missing_permissions:
         print(
             f"workflows are missing permissions.contents=read: {', '.join(missing_permissions)}",
             file=sys.stderr,
         )
+
+    if unpinned_refs or missing_permissions:
         raise SystemExit(2)
 
 
