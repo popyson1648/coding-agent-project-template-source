@@ -4,6 +4,7 @@
 
 [![CI](https://img.shields.io/github/actions/workflow/status/popyson1648/coding-agent-project-template/ci.yml?branch=main&label=CI)](https://github.com/popyson1648/coding-agent-project-template/actions/workflows/ci.yml)
 [![Latest Release](https://img.shields.io/github/v/release/popyson1648/coding-agent-project-template?label=release)](https://github.com/popyson1648/coding-agent-project-template/releases)
+[![License](https://img.shields.io/github/license/popyson1648/coding-agent-project-template?label=license)](LICENSE)
 
 コーディングエージェント(Claude Code、Gemini CLI、Codex など)と一緒に作業するためのプロジェクトハーネスです。
 共通のエージェントルール、プラン・決定ログ、プロジェクトドキュメントの雛形、pre-commit と CI に組み込まれた
@@ -19,7 +20,10 @@
 - `.project/`: 現在のプロジェクトドキュメント(conventions, structure, build, testing, release)。
 - `.template/`: `.project/` 配下のファイルおよび設定ファイルの雛形。
 - `scripts/verify.py`: `.project/verification.toml` で定義された検証フェーズを実行します。
-- `.pre-commit-config.yaml` と `.github/workflows/ci.yml`: どちらも `python3 scripts/verify.py` を呼び出します。
+- `.pre-commit-config.yaml`、`.github/workflows/ci.yml`、`.github/dependabot.yml`: ローカル検証、
+  CI 検証、GitHub Actions の更新確認を行います。
+- `.gitignore`: Python、OS、エディタ由来の最低限の無視設定。プロジェクトの言語やツールに合わせて
+  追記してください。
 
 ## 新規プロジェクトを始める
 
@@ -32,7 +36,8 @@
 
 GitHub の "Use this template" は新規リポジトリしか作成できないため、既存プロジェクトへの導入はファイルコピーになります。
 
-1. Git 履歴なしでテンプレートをダウンロードする(同等の方法であれば何でも構いません):
+1. Git 履歴なしでテンプレートをダウンロードする(同等の方法であれば何でも構いません。
+   下の `npx giget` 例を使う場合は Node.js/npm が必要です):
 
    ```bash
    npx giget@latest gh:popyson1648/coding-agent-project-template .tmp/agent-template
@@ -49,6 +54,7 @@ GitHub の "Use this template" は新規リポジトリしか作成できない�
    mkdir -p scripts .github/workflows
    cp -n .tmp/agent-template/scripts/verify.py scripts/
    cp -n .tmp/agent-template/.github/workflows/ci.yml .github/workflows/
+   cp -n .tmp/agent-template/.github/dependabot.yml .github/
    ```
 
 3. すでに存在していたものは手作業で整合させる: 既存の `AGENTS.md`/`CLAUDE.md`/`GEMINI.md` にテンプレートの
@@ -119,3 +125,8 @@ rm -rf .tmp/template
 
 - Python 3.11 以上(`scripts/verify.py` 用)
 - [pre-commit](https://pre-commit.com/)(ローカルフック用)
+- 上記の `npx giget` 導入コマンドを使う場合のみ Node.js/npm
+
+## ライセンス
+
+このテンプレートは [Mozilla Public License 2.0](LICENSE) の下でライセンスされています。

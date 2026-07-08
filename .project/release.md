@@ -9,6 +9,7 @@ Run a release whenever `coding-agent-project-template/` changes and the public t
 1. Merge the source change into `main` in `coding-agent-project-template-source`.
 2. Let `.github/workflows/publish-template.yml` mirror `coding-agent-project-template/` into `popyson1648/coding-agent-project-template`.
 3. Confirm that the workflow either pushed a commit to the public repository or reported that no sync was needed.
+4. When a commit was pushed, confirm that the workflow verified the matching GitHub Release.
 
 When content changed, the workflow also stamps `.template-version` (source commit, publish date, and
 release tag) into the public repository and cuts a `vYYYY.MM.DD` GitHub Release there with
@@ -32,3 +33,9 @@ subtree.
 
 - Revert the source commit on `main` and let the publish workflow run again.
 - Do not patch the public repository directly; it is treated as generated output.
+- If `.template-version` in the public repository names a release tag that does not exist, create
+  that missing release against the public repository's `main` branch with `gh release create
+  <tag> --repo popyson1648/coding-agent-project-template --target main --title <tag>
+  --generate-notes`, then record the recovery in the source-side issue or PR.
+- If a publish run fails after pushing the public template commit, inspect `.template-version` in
+  the public repository before rerunning so the missing release tag is not skipped silently.
