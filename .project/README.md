@@ -15,7 +15,8 @@ Everything outside that subtree is management-only material for maintaining and 
 ## Minimum Setup
 
 - Python 3.11 or later for `scripts/verify.py`.
-- A GitHub App whose client ID and private key are stored in this source repository's Actions variable and secret for publishing.
+- A GitHub App whose numeric app ID is stored in the source repository Actions variable `APP_ID`.
+- The same GitHub App's private key is stored in the source repository secret `APP_PRIVATE_KEY`.
 
 ## Related Documents
 

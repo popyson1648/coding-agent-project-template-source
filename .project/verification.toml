@@ -12,7 +12,7 @@ reason = "No source-repository formatter is configured."
 
 [phases.lint]
 enabled = true
-command = "python3 scripts/verify.py --check source-layout --check public-template --check publish-workflow"
+command = "python3 scripts/verify.py --check source-layout --check public-template --check publish-workflow --check github-actions --check agent-rule-sync --check template-sync"
 
 [phases.typecheck]
 enabled = true
@@ -24,9 +24,8 @@ command = ""
 reason = "This repository publishes files and workflows but has no build step."
 
 [phases.test_unit]
-enabled = false
-command = ""
-reason = "The repository uses structural verification instead of unit tests."
+enabled = true
+command = "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests"
 
 [phases.test_integration]
 enabled = false

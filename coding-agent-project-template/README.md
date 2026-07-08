@@ -4,6 +4,7 @@
 
 [![CI](https://img.shields.io/github/actions/workflow/status/popyson1648/coding-agent-project-template/ci.yml?branch=main&label=CI)](https://github.com/popyson1648/coding-agent-project-template/actions/workflows/ci.yml)
 [![Latest Release](https://img.shields.io/github/v/release/popyson1648/coding-agent-project-template?label=release)](https://github.com/popyson1648/coding-agent-project-template/releases)
+[![License](https://img.shields.io/github/license/popyson1648/coding-agent-project-template?label=license)](LICENSE)
 
 A project harness for working with coding agents (Claude Code, Gemini CLI, Codex, and similar).
 It ships shared agent rules, a plan and decision log, project documentation skeletons, and a single
@@ -19,7 +20,10 @@ After adopting the template, replace this README with your project's own README.
 - `.project/`: current project documentation (conventions, structure, build, testing, release).
 - `.template/`: source templates for the `.project/` files and for the config files.
 - `scripts/verify.py`: runs the verification phases defined in `.project/verification.toml`.
-- `.pre-commit-config.yaml` and `.github/workflows/ci.yml`: both call `python3 scripts/verify.py`.
+- `.pre-commit-config.yaml`, `.github/workflows/ci.yml`, and `.github/dependabot.yml`: local
+  verification, CI verification, and GitHub Actions update checks.
+- `.gitignore`: baseline Python, OS, and editor ignores; extend it for your project's language and
+  tools.
 
 ## Start a New Project
 
@@ -32,7 +36,8 @@ After adopting the template, replace this README with your project's own README.
 
 GitHub's "Use this template" only creates new repositories, so adoption is a file copy.
 
-1. Download the template without git history (any equivalent download works):
+1. Download the template without git history (any equivalent download works; the `npx giget`
+   example requires Node.js/npm):
 
    ```bash
    npx giget@latest gh:popyson1648/coding-agent-project-template .tmp/agent-template
@@ -49,6 +54,7 @@ GitHub's "Use this template" only creates new repositories, so adoption is a fil
    mkdir -p scripts .github/workflows
    cp -n .tmp/agent-template/scripts/verify.py scripts/
    cp -n .tmp/agent-template/.github/workflows/ci.yml .github/workflows/
+   cp -n .tmp/agent-template/.github/dependabot.yml .github/
    ```
 
 3. Reconcile by hand anything that already existed: merge the template's rules into your existing
@@ -119,3 +125,8 @@ own token setup per project).
 
 - Python 3.11+ (for `scripts/verify.py`)
 - [pre-commit](https://pre-commit.com/) for the local hook
+- Node.js/npm only when using the `npx giget` adoption command shown above
+
+## License
+
+This template is licensed under the [Mozilla Public License 2.0](LICENSE).

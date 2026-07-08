@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import subprocess
 import sys
 from collections.abc import Callable
@@ -39,18 +40,23 @@ PUBLIC_TEMPLATE_ROOT = SOURCE_ROOT / "coding-agent-project-template"
 PUBLISH_WORKFLOW = SOURCE_ROOT / ".github" / "workflows" / "publish-template.yml"
 
 SOURCE_REQUIRED_PATHS = [
+    Path("README.md"),
     Path(".plans"),
     Path(".decisions"),
     Path(".project"),
     Path(".template"),
     Path(".project/verification.toml"),
+    Path(".github/dependabot.yml"),
     Path(".github/workflows/ci.yml"),
     Path("scripts/verify.py"),
+    Path("tests/test_verify.py"),
 ]
 
 PUBLIC_TEMPLATE_REQUIRED_PATHS = [
     Path("README.md"),
     Path("README.ja.md"),
+    Path("LICENSE"),
+    Path(".gitignore"),
     Path("AGENTS.md"),
     Path("CLAUDE.md"),
     Path("GEMINI.md"),
@@ -72,6 +78,7 @@ PUBLIC_TEMPLATE_REQUIRED_PATHS = [
     Path(".template/project-structure.md"),
     Path(".template/project-testing.md"),
     Path(".template/verification.toml"),
+    Path(".github/dependabot.yml"),
     Path(".github/workflows/ci.yml"),
     Path(".pre-commit-config.yaml"),
     Path("scripts/verify.py"),
@@ -80,7 +87,58 @@ PUBLIC_TEMPLATE_REQUIRED_PATHS = [
 PYTHON_SYNTAX_PATHS = [
     SOURCE_ROOT / "scripts" / "verify.py",
     PUBLIC_TEMPLATE_ROOT / "scripts" / "verify.py",
+    SOURCE_ROOT / "tests" / "test_verify.py",
 ]
+
+PINNED_ACTION_WORKFLOWS = [
+    SOURCE_ROOT / ".github" / "workflows" / "ci.yml",
+    SOURCE_ROOT / ".github" / "workflows" / "publish-template.yml",
+    SOURCE_ROOT / ".template" / "ci.yml",
+    PUBLIC_TEMPLATE_ROOT / ".github" / "workflows" / "ci.yml",
+    PUBLIC_TEMPLATE_ROOT / ".template" / "ci.yml",
+]
+
+WORKFLOWS_REQUIRING_READ_PERMISSIONS = PINNED_ACTION_WORKFLOWS
+
+AGENT_RULE_GROUPS = [
+    (
+        "source repository agent rules",
+        SOURCE_ROOT,
+        [Path("AGENTS.md"), Path("CLAUDE.md"), Path("GEMINI.md")],
+    ),
+    (
+        "public template agent rules",
+        PUBLIC_TEMPLATE_ROOT,
+        [Path("AGENTS.md"), Path("CLAUDE.md"), Path("GEMINI.md")],
+    ),
+]
+
+ROOT_TEMPLATE_FILES = [
+    Path("ci.yml"),
+    Path("pre-commit-config.yaml"),
+    Path("project-build.md"),
+    Path("project-conventions.md"),
+    Path("project-readme.md"),
+    Path("project-release.md"),
+    Path("project-structure.md"),
+    Path("project-testing.md"),
+    Path("verification.toml"),
+]
+
+PUBLIC_TEMPLATE_GENERATED_PAIRS = [
+    (Path(".template/ci.yml"), Path(".github/workflows/ci.yml")),
+    (Path(".template/pre-commit-config.yaml"), Path(".pre-commit-config.yaml")),
+    (Path(".template/project-build.md"), Path(".project/build.md")),
+    (Path(".template/project-conventions.md"), Path(".project/conventions.md")),
+    (Path(".template/project-readme.md"), Path(".project/README.md")),
+    (Path(".template/project-release.md"), Path(".project/release.md")),
+    (Path(".template/project-structure.md"), Path(".project/structure.md")),
+    (Path(".template/project-testing.md"), Path(".project/testing.md")),
+    (Path(".template/verification.toml"), Path(".project/verification.toml")),
+]
+
+ACTION_REF_RE = re.compile(r"^\s*(?:-\s*)?uses:\s+([^@\s]+)@([^#\s]+)")
+PINNED_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 
 CHECK_HANDLERS: dict[str, Callable[[], None]] = {}
 
@@ -185,6 +243,31 @@ def ensure_paths_exist(root: Path, relative_paths: list[Path], scope: str) -> No
         raise SystemExit(2)
 
 
+def ensure_files_identical(pairs: list[tuple[Path, Path]], scope: str) -> None:
+    mismatches: list[str] = []
+
+    for left, right in pairs:
+        if not left.exists():
+            mismatches.append(f"missing {left.relative_to(SOURCE_ROOT)}")
+            continue
+        if not right.exists():
+            mismatches.append(f"missing {right.relative_to(SOURCE_ROOT)}")
+            continue
+        if left.read_bytes() != right.read_bytes():
+            left_name = left.relative_to(SOURCE_ROOT)
+            right_name = right.relative_to(SOURCE_ROOT)
+            mismatches.append(f"{left_name} != {right_name}")
+
+    if mismatches:
+        print(f"{scope} mismatch: {', '.join(mismatches)}", file=sys.stderr)
+        raise SystemExit(2)
+
+
+def workflow_has_read_permissions(path: Path) -> bool:
+    content = path.read_text(encoding="utf-8")
+    return "\npermissions:\n  contents: read\n" in f"\n{content}\n"
+
+
 @register_check("source-layout")
 def check_source_layout() -> None:
     ensure_paths_exist(SOURCE_ROOT, SOURCE_REQUIRED_PATHS, "source repository")
@@ -216,8 +299,9 @@ def check_publish_workflow() -> None:
     required_snippets = [
         "branches:",
         "- main",
-        "actions/create-github-app-token@v2",
-        "actions/checkout@v4",
+        "cancel-in-progress: false",
+        "actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349",
+        "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
         "app-id: ${{ vars.APP_ID }}",
         "private-key: ${{ secrets.APP_PRIVATE_KEY }}",
         "repository: popyson1648/coding-agent-project-template",
@@ -227,6 +311,7 @@ def check_publish_workflow() -> None:
         "> .template-version",
         "git push",
         "gh release create",
+        "gh release view",
         "--generate-notes",
         "release: %s",
     ]
@@ -244,6 +329,70 @@ def check_python_syntax() -> None:
     for path in PYTHON_SYNTAX_PATHS:
         source = path.read_text(encoding="utf-8")
         compile(source, str(path), "exec")
+
+
+@register_check("github-actions")
+def check_github_actions() -> None:
+    unpinned_refs: list[str] = []
+    missing_permissions: list[str] = []
+
+    for path in PINNED_ACTION_WORKFLOWS:
+        if not path.exists():
+            unpinned_refs.append(f"missing {path.relative_to(SOURCE_ROOT)}")
+            continue
+
+        for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            match = ACTION_REF_RE.match(line)
+            if match is None:
+                continue
+            action, ref = match.groups()
+            if not PINNED_SHA_RE.match(ref):
+                relative = path.relative_to(SOURCE_ROOT)
+                unpinned_refs.append(f"{relative}:{line_number} uses {action}@{ref}")
+
+    for path in WORKFLOWS_REQUIRING_READ_PERMISSIONS:
+        if not path.exists():
+            missing_permissions.append(f"missing {path.relative_to(SOURCE_ROOT)}")
+        elif not workflow_has_read_permissions(path):
+            missing_permissions.append(str(path.relative_to(SOURCE_ROOT)))
+
+    if unpinned_refs:
+        print(
+            f"workflow actions are not pinned to full commit SHAs: {', '.join(unpinned_refs)}",
+            file=sys.stderr,
+        )
+
+    if missing_permissions:
+        print(
+            f"workflows are missing permissions.contents=read: {', '.join(missing_permissions)}",
+            file=sys.stderr,
+        )
+
+    if unpinned_refs or missing_permissions:
+        raise SystemExit(2)
+
+
+@register_check("agent-rule-sync")
+def check_agent_rule_sync() -> None:
+    for scope, root, paths in AGENT_RULE_GROUPS:
+        first = root / paths[0]
+        pairs = [(first, root / path) for path in paths[1:]]
+        ensure_files_identical(pairs, scope)
+
+
+@register_check("template-sync")
+def check_template_sync() -> None:
+    root_template_pairs = [
+        (SOURCE_ROOT / ".template" / path, PUBLIC_TEMPLATE_ROOT / ".template" / path)
+        for path in ROOT_TEMPLATE_FILES
+    ]
+    public_generated_pairs = [
+        (PUBLIC_TEMPLATE_ROOT / template, PUBLIC_TEMPLATE_ROOT / generated)
+        for template, generated in PUBLIC_TEMPLATE_GENERATED_PAIRS
+    ]
+
+    ensure_files_identical(root_template_pairs, "source and public template scaffolds")
+    ensure_files_identical(public_generated_pairs, "public template generated files")
 
 
 def run_named_checks(names: list[str]) -> int:
