@@ -11,13 +11,18 @@
 
 ## Important Modules
 
-- `scripts/verify.py`: verifies the source layout, publish workflow, and template subtree.
-- `.github/workflows/publish-template.yml`: mirrors the public template subtree into the public repository.
+- `scripts/verify.py`: verifies the source layout, publish workflow, template subtree, shared agent
+  rule files, and template synchronization invariants.
+- `.github/workflows/publish-template.yml`: serializes public template publishes, mirrors
+  `coding-agent-project-template/` into the public repository, stamps `.template-version`, creates a
+  dated GitHub Release, and verifies that release exists.
 
 ## Where To Make Changes
 
 - Change end-user template files under `coding-agent-project-template/`.
 - Change publish mechanics, verification, and operator documentation at the source repository root.
+- Keep root `.template/` and `coding-agent-project-template/.template/` synchronized unless a
+  documented exception exists.
 
 ## Areas That Require Extra Care
 

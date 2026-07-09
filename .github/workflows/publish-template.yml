@@ -10,7 +10,7 @@ permissions:
 
 concurrency:
   group: publish-public-template
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -18,11 +18,13 @@ jobs:
 
     steps:
       - name: Checkout source repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
 
       - name: Create GitHub App token for public template repository
         id: app-token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
         with:
           app-id: ${{ vars.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
@@ -32,7 +34,7 @@ jobs:
           permission-contents: write
 
       - name: Checkout public template repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           repository: popyson1648/coding-agent-project-template
           ref: main
@@ -44,20 +46,58 @@ jobs:
           SOURCE_DIR: coding-agent-project-template/
           TARGET_DIR: public-template/
         run: |
-          rsync -a --delete --exclude='.git/' "$SOURCE_DIR" "$TARGET_DIR"
+          rsync -a --delete --exclude='.git/' --exclude='.template-version' "$SOURCE_DIR" "$TARGET_DIR"
 
       - name: Commit and push when synced content changed
+        id: publish
         working-directory: public-template
         env:
           SOURCE_SHA: ${{ github.sha }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           if [ -z "$(git status --porcelain)" ]; then
             echo "No changes to publish."
+            echo "published=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+
+          DATE_TAG="v$(date -u +%Y.%m.%d)"
+          TAG="$DATE_TAG"
+          SUFFIX=2
+          while gh release view "$TAG" --repo popyson1648/coding-agent-project-template >/dev/null 2>&1; do
+            TAG="${DATE_TAG}.${SUFFIX}"
+            SUFFIX=$((SUFFIX + 1))
+          done
+
+          printf 'source-commit: %s\npublished: %s\nrelease: %s\n' \
+            "$SOURCE_SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$TAG" > .template-version
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add --all
           git commit -m "Publish template from source ${SOURCE_SHA}"
           git push
+
+          echo "published=true" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        if: steps.publish.outputs.published == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASE_TAG: ${{ steps.publish.outputs.tag }}
+        run: |
+          gh release create "$RELEASE_TAG" \
+            --repo popyson1648/coding-agent-project-template \
+            --target main \
+            --title "$RELEASE_TAG" \
+            --generate-notes
+
+      - name: Verify GitHub Release
+        if: steps.publish.outputs.published == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASE_TAG: ${{ steps.publish.outputs.tag }}
+        run: |
+          gh release view "$RELEASE_TAG" \
+            --repo popyson1648/coding-agent-project-template
