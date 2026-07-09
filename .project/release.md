@@ -28,6 +28,7 @@ subtree.
 - Source repository secret: `APP_PRIVATE_KEY`
 - GitHub App installation target: `popyson1648/coding-agent-project-template`
 - GitHub App repository permission: `Contents: Read and write`
+- GitHub App repository permission: `Workflows: Read and write`
 
 ## Rollback Or Recovery Notes
 
