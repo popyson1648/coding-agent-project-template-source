@@ -85,17 +85,19 @@ jobs:
         if: steps.publish.outputs.published == 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASE_TAG: ${{ steps.publish.outputs.tag }}
         run: |
-          gh release create "${{ steps.publish.outputs.tag }}" \
+          gh release create "$RELEASE_TAG" \
             --repo popyson1648/coding-agent-project-template \
             --target main \
-            --title "${{ steps.publish.outputs.tag }}" \
+            --title "$RELEASE_TAG" \
             --generate-notes
 
       - name: Verify GitHub Release
         if: steps.publish.outputs.published == 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASE_TAG: ${{ steps.publish.outputs.tag }}
         run: |
-          gh release view "${{ steps.publish.outputs.tag }}" \
+          gh release view "$RELEASE_TAG" \
             --repo popyson1648/coding-agent-project-template

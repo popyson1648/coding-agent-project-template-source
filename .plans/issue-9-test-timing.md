@@ -10,12 +10,12 @@ done
 
 ## Issues
 
-#9
+Issue `#9`
 
 ## Goal
 
 Decide and document the stage at which tests are written, without locking development into a single
-methodology such as TDD (issue #9).
+methodology such as TDD (issue `#9`).
 
 ## Scope
 

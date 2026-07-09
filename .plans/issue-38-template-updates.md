@@ -10,12 +10,12 @@ done
 
 ## Issues
 
-#38
+Issue `#38`
 
 ## Goal
 
 Give projects that already adopted the template a standard way to follow template updates, with a
-version identity for the template (issue #38).
+version identity for the template (issue `#38`).
 
 ## Scope
 

@@ -10,12 +10,12 @@ done
 
 ## Issues
 
-#30
+Issue `#30`
 
 ## Goal
 
 Make Chrome DevTools (via `chrome-devtools-mcp`) the default way agents verify, debug, and optimize
-web UI work, using its full capability set (issue #30).
+web UI work, using its full capability set (issue `#30`).
 
 ## Scope
 

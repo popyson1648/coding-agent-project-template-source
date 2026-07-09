@@ -10,13 +10,13 @@ done
 
 ## Issues
 
-#14, #8, #6
+`#14`, `#8`, `#6`
 
 ## Goal
 
-Structure plan and decision documents so their lifecycle and relations are greppable (issues #14,
-#8) and define how `.plans/`, `.decisions/`, and `.project/` scale to multi-component repositories
-(issue #6).
+Structure plan and decision documents so their lifecycle and relations are greppable (issues `#14`,
+`#8`) and define how `.plans/`, `.decisions/`, and `.project/` scale to multi-component repositories
+(issue `#6`).
 
 ## Scope
 
@@ -64,7 +64,7 @@ Structure plan and decision documents so their lifecycle and relations are grepp
 
 - `python3 scripts/verify.py`
 - Root and template AGENTS/CLAUDE/GEMINI stay byte-identical triplets.
-- `grep -L "## Status" .plans/*.md` returns nothing.
+- `find .plans -name '*.md' -not -name 'TEMPLATE.md' -exec grep -L "## Status" {} +` returns nothing.
 
 ## Open Issues
 

@@ -17,9 +17,10 @@ Accepted
 The published template ships a root `README.md` that documents two adoption paths: GitHub's
 "Use this template" for new repositories, and, for existing repositories, downloading a
 history-free snapshot with `npx giget@latest gh:popyson1648/coding-agent-project-template` followed
-by a non-overwriting copy (`cp -n`), manual reconciliation of pre-existing agent docs and CI, filling
-`.project/` from `.template/`, and `python3 scripts/verify.py` as the acceptance check. `README.md`
-becomes a required path in the publish verification.
+by recursive, non-overwriting copies (`cp -Rn` for template directories and `cp -n` for individual
+files), manual reconciliation of pre-existing agent docs and CI, filling `.project/` from
+`.template/`, and `python3 scripts/verify.py` as the acceptance check. `README.md` becomes a
+required path in the publish verification.
 
 ## Context
 

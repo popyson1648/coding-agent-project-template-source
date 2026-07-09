@@ -10,12 +10,13 @@ done
 
 ## Issues
 
-#23
+Issue `#23`
 
 ## Goal
 
 Document how agents investigate, isolate, and judge problems the way professionals do, including a
-source-priority order and the separation of observed facts, tested results, and hypotheses (issue #23).
+source-priority order and the separation of observed facts, tested results, and hypotheses
+(issue `#23`).
 
 ## Scope
 

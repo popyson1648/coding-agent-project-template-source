@@ -10,11 +10,11 @@ done
 
 ## Issues
 
-#7
+Issue `#7`
 
 ## Goal
 
-Give existing projects a documented, low-maintenance way to adopt this harness (issue #7).
+Give existing projects a documented, low-maintenance way to adopt this harness (issue `#7`).
 
 ## Scope
 
