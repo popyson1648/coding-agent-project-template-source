@@ -12,6 +12,15 @@ verification entry point wired into pre-commit and CI.
 
 After adopting the template, replace this README with your project's own README.
 
+## Table of Contents
+
+- [What You Get](#what-you-get)
+- [Start a New Project](#start-a-new-project)
+- [Adopt Into an Existing Project](#adopt-into-an-existing-project)
+- [Update From the Template](#update-from-the-template)
+- [Requirements](#requirements)
+- [License](#license)
+
 ## What You Get
 
 - `AGENTS.md` / `CLAUDE.md` / `GEMINI.md`: repository rules that agents load; kept identical.
@@ -70,7 +79,7 @@ GitHub's "Use this template" only creates new repositories, so adoption is a fil
    rm -rf .tmp/agent-template
    ```
 
-## Keep Up With Template Updates
+## Update From the Template
 
 Every published change to this template also refreshes `.template-version` (the source commit,
 publish date, and release tag) and cuts a dated [GitHub Release](https://github.com/popyson1648/coding-agent-project-template/releases)
