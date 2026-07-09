@@ -1,5 +1,7 @@
 # Coding Agent Project Template Source
 
+**English** | [日本語](README.ja.md)
+
 This is the source-of-truth repository for the public template
 `popyson1648/coding-agent-project-template`.
 
