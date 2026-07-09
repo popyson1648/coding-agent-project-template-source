@@ -21,6 +21,7 @@ Improve the source repository README files so maintainers and coding agents can 
 - Keep the root `README.md` in English and link it to a Japanese README.
 - Add the root `README.ja.md` for Japanese source-repository guidance.
 - Clarify the repository purpose, editing boundaries, required reading, verification command, and publication boundary.
+- Revise the Japanese README in plain form with a commented directory tree.
 - Keep the public template README unchanged.
 
 ## Non-goals
@@ -40,15 +41,17 @@ Improve the source repository README files so maintainers and coding agents can 
 
 1. Create an approved task plan.
 2. Restore the root README to English and add a Japanese README.
-3. Run repository verification.
-4. Review the final diff.
+3. Revise the Japanese README after maintainer review.
+4. Run repository verification.
+5. Review the final diff.
 
 ## Progress
 
 - [x] Step 1: create an approved task plan
 - [x] Step 2: restore the root README to English and add a Japanese README
-- [x] Step 3: run repository verification
-- [x] Step 4: review the final diff
+- [x] Step 3: revise the Japanese README after maintainer review
+- [x] Step 4: run repository verification
+- [x] Step 5: review the final diff
 
 ## Verification
 
