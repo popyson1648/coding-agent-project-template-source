@@ -304,6 +304,7 @@ def check_publish_workflow() -> None:
         "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
         "app-id: ${{ vars.APP_ID }}",
         "private-key: ${{ secrets.APP_PRIVATE_KEY }}",
+        "permission-workflows: write",
         "repository: popyson1648/coding-agent-project-template",
         "path: public-template",
         "rsync -a --delete --exclude='.git/' --exclude='.template-version'",
