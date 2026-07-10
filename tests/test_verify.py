@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import contextlib
 import io
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -168,6 +169,84 @@ class VerifyHelperTests(unittest.TestCase):
                 self.assertEqual(raised.exception.code, 2)
             finally:
                 self.module.SOURCE_ROOT = original_source_root
+
+
+class PublishWorkflowCheckTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.module = load_verify_module(
+            "source_verify_publish_workflow",
+            REPO_ROOT / "scripts" / "verify.py",
+        )
+        cls.workflow = (
+            REPO_ROOT / ".github" / "workflows" / "publish-template.yml"
+        ).read_text(encoding="utf-8")
+
+    @contextlib.contextmanager
+    def publish_workflow(self, content: str):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "publish-template.yml"
+            path.write_text(content, encoding="utf-8")
+
+            original = self.module.PUBLISH_WORKFLOW
+            self.module.PUBLISH_WORKFLOW = path
+            try:
+                yield
+            finally:
+                self.module.PUBLISH_WORKFLOW = original
+
+    def assert_check_fails(self, content: str) -> str:
+        stderr = io.StringIO()
+        with self.publish_workflow(content):
+            with contextlib.redirect_stderr(stderr):
+                with self.assertRaises(SystemExit) as raised:
+                    self.module.check_publish_workflow()
+
+        self.assertEqual(raised.exception.code, 2)
+        return stderr.getvalue()
+
+    def test_accepts_current_publish_workflow(self) -> None:
+        with self.publish_workflow(self.workflow):
+            self.module.check_publish_workflow()
+
+    def test_accepts_updated_action_pins(self) -> None:
+        updated = re.sub(r"@[0-9a-f]{40} # v\d+", f"@{'b' * 40} # v9", self.workflow)
+
+        self.assertNotEqual(updated, self.workflow)
+        with self.publish_workflow(updated):
+            self.module.check_publish_workflow()
+
+    def test_rejects_missing_required_action(self) -> None:
+        without_app_token = "\n".join(
+            line
+            for line in self.workflow.splitlines()
+            if "uses: actions/create-github-app-token@" not in line
+        )
+
+        message = self.assert_check_fails(without_app_token)
+        self.assertIn("missing required actions", message)
+        self.assertIn("actions/create-github-app-token", message)
+
+    def test_rejects_missing_required_behavior(self) -> None:
+        without_release = self.workflow.replace("gh release create", "true")
+
+        message = self.assert_check_fails(without_release)
+        self.assertIn("missing required content", message)
+        self.assertIn("gh release create", message)
+
+    def test_collect_action_names_ignores_unpinned_local_actions(self) -> None:
+        content = "\n".join(
+            [
+                "      - uses: actions/checkout@" + "a" * 40,
+                "      - uses: ./.github/actions/local",
+                "        uses: actions/setup-python@" + "c" * 40,
+            ]
+        )
+
+        self.assertEqual(
+            self.module.collect_action_names(content),
+            {"actions/checkout", "actions/setup-python"},
+        )
 
 
 if __name__ == "__main__":
