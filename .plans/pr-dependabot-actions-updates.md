@@ -2,7 +2,7 @@
 
 ## Status
 
-in-progress
+done
 
 ## Date
 
@@ -71,7 +71,9 @@ security requirement that workflow actions are pinned to full commit SHAs.
   v3.2.0, across `.github/workflows/` and all template `ci.yml` copies.
 - [x] Migrated `app-id` to `client-id` in the publish workflow. The action reads both inputs into
   the same parameter, so the existing numeric `APP_ID` variable keeps working unchanged.
-- [~] Merge to `main`, then confirm Dependabot closes #60, #61, and #62 as no longer needed.
+- [x] Merged to `main` as PR #64. The publish workflow ran successfully with the new pins and the
+  `client-id` input, and the mirror received the update.
+- [x] Closed superseded Dependabot PRs: source #60/#61/#62 and mirror #2/#3.
 
 ## Verification
 
@@ -80,7 +82,5 @@ security requirement that workflow actions are pinned to full commit SHAs.
 
 ## Open Issues
 
-- Needs merge to `main` (user approval). After merge, confirm Dependabot closes #60, #61, and #62
-  automatically; close them manually if it does not.
-- Future Dependabot bumps to `ci.yml` still require the same manual sync of template copies; that
-  trade-off stays recorded in `.decisions/github-actions-dependabot.md`.
+- None. The template-copy sync problem is addressed separately by the Renovate migration
+  (`.plans/renovate-source-updates.md`).

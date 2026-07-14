@@ -10,7 +10,8 @@ Use weekly Dependabot version updates for GitHub Actions
 
 ## Status
 
-Accepted
+Superseded by `.decisions/renovate-source-updates.md` for the source repository. The public
+template still ships `.github/dependabot.yml` to projects created from it.
 
 ## Decision
 
@@ -55,3 +56,4 @@ with GitHub Actions update PRs enabled.
 ## Related
 
 - Issue #44
+- Superseded by `.decisions/renovate-source-updates.md`
