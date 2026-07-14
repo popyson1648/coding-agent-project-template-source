@@ -20,8 +20,11 @@ scaffold copies (`.template/ci.yml` in the source root and in the public templat
 all action updates into one weekly PR, and keeps digest pinning.
 
 The public template keeps shipping `.github/dependabot.yml` so projects created from it get
-zero-setup update PRs. Dependabot version updates are disabled in the mirror repository settings
-because the mirror is generated output and direct patches get overwritten by the publish sync.
+zero-setup update PRs. That file also activates Dependabot on the mirror repository, and GitHub
+offers no settings toggle to turn version updates off: the only levers are deleting the file (the
+publish sync would restore it) or crippling it with `open-pull-requests-limit: 0` (which would ship
+to template users). Mirror update PRs are therefore accepted as transient noise: once the publish
+sync delivers the current pins, Dependabot closes its own PRs as up to date.
 
 ## Context
 
@@ -58,7 +61,8 @@ never drift from the executable workflows.
 
 ## Revisit Conditions
 
-- Dependabot gains support for scanning workflow files outside `.github/workflows/`.
+- Dependabot gains support for scanning workflow files outside `.github/workflows/`, or gains a
+  repository setting that disables version updates without changing `dependabot.yml`.
 - The hosted Renovate App's repository access becomes a concern; switch to self-hosted Renovate.
 - The template adds ecosystems that Renovate and Dependabot handle differently.
 

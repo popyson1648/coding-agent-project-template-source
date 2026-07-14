@@ -35,8 +35,8 @@ Dependabot configuration.
 ## Assumptions
 
 - The user installs the Mend Renovate App on the source repository (manual browser step).
-- The user disables Dependabot version updates in the mirror repository settings (manual step);
-  the shipped `dependabot.yml` file itself stays unchanged.
+- Mirror version-update PRs cannot be disabled without changing the shipped `dependabot.yml`;
+  they are accepted as transient noise that Dependabot self-closes after the publish sync.
 
 ## Steps
 
@@ -63,5 +63,4 @@ Dependabot configuration.
 
 ## Open Issues
 
-- Manual steps after merge: install the Mend Renovate App on the source repository; turn off
-  Dependabot version updates in the mirror repository settings.
+- Manual step after merge: install the Mend Renovate App on the source repository.
