@@ -90,6 +90,30 @@ PYTHON_SYNTAX_PATHS = [
     SOURCE_ROOT / "tests" / "test_verify.py",
 ]
 
+PUBLISH_WORKFLOW_REQUIRED_ACTIONS = [
+    "actions/checkout",
+    "actions/create-github-app-token",
+]
+
+PUBLISH_WORKFLOW_REQUIRED_SNIPPETS = [
+    "branches:",
+    "- main",
+    "cancel-in-progress: false",
+    "client-id: ${{ vars.APP_ID }}",
+    "private-key: ${{ secrets.APP_PRIVATE_KEY }}",
+    "permission-workflows: write",
+    "repository: popyson1648/coding-agent-project-template",
+    "path: public-template",
+    "rsync -a --delete --exclude='.git/' --exclude='.template-version'",
+    "git status --porcelain",
+    "> .template-version",
+    "git push",
+    "gh release create",
+    "gh release view",
+    "--generate-notes",
+    "release: %s",
+]
+
 PINNED_ACTION_WORKFLOWS = [
     SOURCE_ROOT / ".github" / "workflows" / "ci.yml",
     SOURCE_ROOT / ".github" / "workflows" / "publish-template.yml",
@@ -268,6 +292,17 @@ def workflow_has_read_permissions(path: Path) -> bool:
     return "\npermissions:\n  contents: read\n" in f"\n{content}\n"
 
 
+def collect_action_names(content: str) -> set[str]:
+    names: set[str] = set()
+
+    for line in content.splitlines():
+        match = ACTION_REF_RE.match(line)
+        if match is not None:
+            names.add(match.group(1))
+
+    return names
+
+
 @register_check("source-layout")
 def check_source_layout() -> None:
     ensure_paths_exist(SOURCE_ROOT, SOURCE_REQUIRED_PATHS, "source repository")
@@ -296,32 +331,29 @@ def check_publish_workflow() -> None:
         raise SystemExit(2)
 
     content = PUBLISH_WORKFLOW.read_text(encoding="utf-8")
-    required_snippets = [
-        "branches:",
-        "- main",
-        "cancel-in-progress: false",
-        "actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349",
-        "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
-        "app-id: ${{ vars.APP_ID }}",
-        "private-key: ${{ secrets.APP_PRIVATE_KEY }}",
-        "permission-workflows: write",
-        "repository: popyson1648/coding-agent-project-template",
-        "path: public-template",
-        "rsync -a --delete --exclude='.git/' --exclude='.template-version'",
-        "git status --porcelain",
-        "> .template-version",
-        "git push",
-        "gh release create",
-        "gh release view",
-        "--generate-notes",
-        "release: %s",
+
+    missing_snippets = [
+        snippet for snippet in PUBLISH_WORKFLOW_REQUIRED_SNIPPETS if snippet not in content
     ]
-    missing = [snippet for snippet in required_snippets if snippet not in content]
-    if missing:
+
+    used_actions = collect_action_names(content)
+    missing_actions = [
+        action for action in PUBLISH_WORKFLOW_REQUIRED_ACTIONS if action not in used_actions
+    ]
+
+    if missing_snippets:
         print(
-            f"publish workflow is missing required content: {', '.join(missing)}",
+            f"publish workflow is missing required content: {', '.join(missing_snippets)}",
             file=sys.stderr,
         )
+
+    if missing_actions:
+        print(
+            f"publish workflow is missing required actions: {', '.join(missing_actions)}",
+            file=sys.stderr,
+        )
+
+    if missing_snippets or missing_actions:
         raise SystemExit(2)
 
 

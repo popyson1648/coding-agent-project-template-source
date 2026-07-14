@@ -24,7 +24,8 @@ subtree.
 
 ## Required GitHub Configuration
 
-- Source repository Actions variable: `APP_ID` with the GitHub App numeric app ID
+- Source repository Actions variable: `APP_ID` with the GitHub App numeric app ID (passed to the
+  `client-id` input of `actions/create-github-app-token`, which accepts both ID forms)
 - Source repository secret: `APP_PRIVATE_KEY`
 - GitHub App installation target: `popyson1648/coding-agent-project-template`
 - GitHub App repository permission: `Contents: Read and write`
