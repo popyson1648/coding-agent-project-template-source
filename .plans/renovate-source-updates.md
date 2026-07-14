@@ -2,7 +2,7 @@
 
 ## Status
 
-in-progress
+done
 
 ## Date
 
@@ -53,7 +53,8 @@ Dependabot configuration.
 - [x] Step 3: decision records updated.
 - [x] Step 4: `python3 scripts/verify.py` passed; `renovate-config-validator` (renovate 43.262.1)
   validated the config.
-- [ ] Step 5: PR, merge, app installation.
+- [x] Step 5: PR #65 merged; the Mend Renovate App is installed on the source repository
+  (product: Renovate, mode: Interactive, only this repository selected).
 
 ## Verification
 
@@ -63,4 +64,5 @@ Dependabot configuration.
 
 ## Open Issues
 
-- Manual step after merge: install the Mend Renovate App on the source repository.
+- None. Renovate's first scan was still pending when this plan was closed; the Dependency
+  Dashboard issue should appear after it, and update PRs follow the weekly Monday schedule.
