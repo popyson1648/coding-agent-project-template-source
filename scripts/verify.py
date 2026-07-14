@@ -46,7 +46,7 @@ SOURCE_REQUIRED_PATHS = [
     Path(".project"),
     Path(".template"),
     Path(".project/verification.toml"),
-    Path(".github/dependabot.yml"),
+    Path("renovate.json"),
     Path(".github/workflows/ci.yml"),
     Path("scripts/verify.py"),
     Path("tests/test_verify.py"),
