@@ -12,7 +12,7 @@ reason = "No source-repository formatter is configured."
 
 [phases.lint]
 enabled = true
-command = "python3 scripts/verify.py --check source-layout --check public-template --check publish-workflow --check github-actions --check agent-rule-sync --check template-sync"
+command = "python3 scripts/verify.py --check source-layout --check public-template --check publish-workflow --check github-actions --check agent-rule-sync --check template-sync --check loop-policy"
 
 [phases.typecheck]
 enabled = true
