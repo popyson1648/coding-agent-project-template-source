@@ -10,12 +10,17 @@ Call plain `python3 scripts/verify.py` from pre-commit and CI
 
 ## Status
 
-Accepted
+superseded
 
 ## Decision
 
-`.pre-commit-config.yaml` and `.github/workflows/ci.yml` invoke `python3 scripts/verify.py` with no
-`--mode` flag, in both the source repository and the published template.
+This record is superseded by `.decisions/impact-based-verification-selection.md`. The successor
+carries forward plain full verification for pre-commit and manual use while replacing the CI
+invocation.
+
+The historical decision was that `.pre-commit-config.yaml` and `.github/workflows/ci.yml` invoke
+`python3 scripts/verify.py` with no `--mode` flag, in both the source repository and the published
+template.
 
 The `--mode` option stays in `verify.py` as an optional phase filter (`run_pre_commit`, `run_in_ci`,
 and related flags in `verification.toml`) for projects that later need to split CI-only or
@@ -55,3 +60,10 @@ pre-commit framework and GitHub Actions.
 
 - A project or this repository actually needs different phase sets per environment.
 - `verify.py` gains a different mechanism for environment-specific phase selection.
+
+## Related
+
+- [Issue #15](https://github.com/popyson1648/coding-agent-project-template-source/issues/15)
+- [Issue #69](https://github.com/popyson1648/coding-agent-project-template-source/issues/69)
+- [CI default verification](ci-default-verification.md)
+- [Impact-based verification selection](impact-based-verification-selection.md)
