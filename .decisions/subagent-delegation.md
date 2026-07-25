@@ -113,6 +113,6 @@ integration and final judgment in the main agent preserves a single accountable 
 
 ## Related
 
-- Issue #67
-- Issue #68
-- `.decisions/agent-instruction-file-sync.md`
+- https://github.com/popyson1648/coding-agent-project-template-source/issues/67
+- https://github.com/popyson1648/coding-agent-project-template-source/issues/68
+- [.decisions/agent-instruction-file-sync.md](agent-instruction-file-sync.md)
