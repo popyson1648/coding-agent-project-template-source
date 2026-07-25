@@ -143,6 +143,71 @@ AGENT_RULE_CROSS_SCOPE_PAIRS = [
     (SOURCE_ROOT / path, PUBLIC_TEMPLATE_ROOT / path) for path in AGENT_RULE_FILES
 ]
 
+LOOP_POLICY_HEADING = "Autonomous Execution Loop"
+
+LOOP_POLICY_AGENT_FILES = [
+    root / path
+    for root in (SOURCE_ROOT, PUBLIC_TEMPLATE_ROOT)
+    for path in AGENT_RULE_FILES
+]
+
+LOOP_POLICY_CONVENTION_FILES = [
+    SOURCE_ROOT / ".project" / "conventions.md",
+    SOURCE_ROOT / ".template" / "project-conventions.md",
+    PUBLIC_TEMPLATE_ROOT / ".template" / "project-conventions.md",
+    PUBLIC_TEMPLATE_ROOT / ".project" / "conventions.md",
+]
+
+LOOP_POLICY_PLAN_TEMPLATES = [
+    SOURCE_ROOT / ".plans" / "TEMPLATE.md",
+    PUBLIC_TEMPLATE_ROOT / ".plans" / "TEMPLATE.md",
+]
+
+LOOP_POLICY_REQUIRED_PLAN_SECTIONS = [
+    "Status",
+    "Goal",
+    "Success Criteria",
+    "Stop Conditions",
+    "Approval Boundaries",
+    "Progress",
+    "Loop State",
+    "Verification",
+    "Open Issues",
+]
+
+LOOP_POLICY_REQUIRED_AGENT_ANCHORS = [
+    "product-specific loop command",
+    "finite total-cycle limit",
+    "two consecutive cycles without measurable progress",
+    "do not raise, remove, or reset",
+    "completion evidence by itself",
+    "never expands the user's authorization",
+    "external writes",
+]
+
+LOOP_POLICY_REQUIRED_CONVENTION_ANCHORS = [
+    "### Entry Contract",
+    "### Cycle",
+    "### Evidence and Completion",
+    "### Stop and Escalation",
+    "default maximum of eight cycles",
+    "do not raise, remove, or reset",
+    "`scripts/verify.py` supports only",
+    "A loop does not expand authority",
+]
+
+LOOP_POLICY_REQUIRED_PLAN_ANCHORS = [
+    "maximum 8 cycles",
+    "Already-authorized actions (authority source):",
+    "Actions requiring confirmation:",
+    "resetting a loop limit after implementation starts",
+    "- Current cycle:",
+    "- Last material observation:",
+    "- Next action:",
+    "- Consecutive cycles without material progress:",
+    "- Stop or escalation reason:",
+]
+
 ROOT_TEMPLATE_FILES = [
     Path("ci.yml"),
     Path("pre-commit-config.yaml"),
@@ -293,6 +358,118 @@ def ensure_files_identical(pairs: list[tuple[Path, Path]], scope: str) -> None:
         raise SystemExit(2)
 
 
+def display_path(path: Path) -> str:
+    try:
+        return str(path.relative_to(SOURCE_ROOT))
+    except ValueError:
+        return str(path)
+
+
+def markdown_heading_lines(lines: list[str]) -> list[tuple[int, str]]:
+    headings: list[tuple[int, str]] = []
+    fence_character = ""
+    fence_length = 0
+
+    for index, line in enumerate(lines):
+        stripped = line.lstrip().rstrip("\r\n")
+        fence_match = re.match(r"^(`{3,}|~{3,})", stripped)
+
+        if fence_character:
+            if (
+                fence_match is not None
+                and fence_match.group(1)[0] == fence_character
+                and len(fence_match.group(1)) >= fence_length
+                and stripped[len(fence_match.group(1)):].strip() == ""
+            ):
+                fence_character = ""
+                fence_length = 0
+            continue
+
+        if fence_match is not None:
+            fence = fence_match.group(1)
+            fence_character = fence[0]
+            fence_length = len(fence)
+            continue
+
+        if line.startswith("## "):
+            headings.append((index, line.rstrip("\r\n")))
+
+    return headings
+
+
+def extract_markdown_section(path: Path, heading: str) -> str:
+    if not path.exists():
+        print(f"missing Markdown file: {display_path(path)}", file=sys.stderr)
+        raise SystemExit(2)
+
+    marker = f"## {heading}"
+    lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+    matches = [
+        index
+        for index, candidate in markdown_heading_lines(lines)
+        if candidate == marker
+    ]
+
+    if len(matches) != 1:
+        print(
+            f"{display_path(path)} must contain exactly one '{marker}' heading",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
+
+    start = matches[0]
+    end = len(lines)
+    for index, candidate in markdown_heading_lines(lines):
+        if index > start and candidate.startswith("## "):
+            end = index
+            break
+
+    return "".join(lines[start:end])
+
+
+def ensure_markdown_sections(path: Path, headings: list[str], scope: str) -> None:
+    for heading in headings:
+        try:
+            extract_markdown_section(path, heading)
+        except SystemExit:
+            print(f"{scope} is invalid", file=sys.stderr)
+            raise
+
+
+def ensure_markdown_section_identical(
+    paths: list[Path],
+    heading: str,
+    scope: str,
+) -> None:
+    reference_path = paths[0]
+    reference = extract_markdown_section(reference_path, heading)
+    mismatches = [
+        f"{display_path(reference_path)} != {display_path(path)}"
+        for path in paths[1:]
+        if extract_markdown_section(path, heading) != reference
+    ]
+
+    if mismatches:
+        print(f"{scope} mismatch: {', '.join(mismatches)}", file=sys.stderr)
+        raise SystemExit(2)
+
+
+def ensure_text_anchors(
+    content: str,
+    anchors: list[str],
+    path: Path,
+    scope: str,
+) -> None:
+    missing = [anchor for anchor in anchors if anchor not in content]
+    if missing:
+        print(
+            f"{scope} in {display_path(path)} is missing required anchors: "
+            f"{', '.join(missing)}",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
+
+
 def workflow_has_read_permissions(path: Path) -> bool:
     content = path.read_text(encoding="utf-8")
     return "\npermissions:\n  contents: read\n" in f"\n{content}\n"
@@ -437,6 +614,54 @@ def check_template_sync() -> None:
 
     ensure_files_identical(root_template_pairs, "source and public template scaffolds")
     ensure_files_identical(public_generated_pairs, "public template generated files")
+
+
+@register_check("loop-policy")
+def check_loop_policy() -> None:
+    ensure_markdown_section_identical(
+        LOOP_POLICY_AGENT_FILES,
+        LOOP_POLICY_HEADING,
+        "agent loop policy",
+    )
+    for path in LOOP_POLICY_AGENT_FILES:
+        ensure_text_anchors(
+            extract_markdown_section(path, LOOP_POLICY_HEADING),
+            LOOP_POLICY_REQUIRED_AGENT_ANCHORS,
+            path,
+            "agent loop policy",
+        )
+
+    ensure_markdown_section_identical(
+        LOOP_POLICY_CONVENTION_FILES,
+        LOOP_POLICY_HEADING,
+        "project convention loop policy",
+    )
+    for path in LOOP_POLICY_CONVENTION_FILES:
+        ensure_text_anchors(
+            extract_markdown_section(path, LOOP_POLICY_HEADING),
+            LOOP_POLICY_REQUIRED_CONVENTION_ANCHORS,
+            path,
+            "project convention loop policy",
+        )
+
+    reference_plan = LOOP_POLICY_PLAN_TEMPLATES[0]
+    ensure_files_identical(
+        [(reference_plan, path) for path in LOOP_POLICY_PLAN_TEMPLATES[1:]],
+        "source and public template plan state",
+    )
+
+    for path in LOOP_POLICY_PLAN_TEMPLATES:
+        ensure_markdown_sections(
+            path,
+            LOOP_POLICY_REQUIRED_PLAN_SECTIONS,
+            f"loop plan template {display_path(path)}",
+        )
+        ensure_text_anchors(
+            path.read_text(encoding="utf-8"),
+            LOOP_POLICY_REQUIRED_PLAN_ANCHORS,
+            path,
+            "loop plan template",
+        )
 
 
 def run_named_checks(names: list[str]) -> int:

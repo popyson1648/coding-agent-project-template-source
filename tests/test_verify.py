@@ -194,6 +194,220 @@ class VerifyHelperTests(unittest.TestCase):
                 self.module.AGENT_RULE_GROUPS = original_groups
                 self.module.AGENT_RULE_CROSS_SCOPE_PAIRS = original_pairs
 
+    def test_current_loop_policy_is_valid(self) -> None:
+        self.module.check_loop_policy()
+
+    def test_extract_markdown_section_rejects_missing_or_duplicate_heading(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "policy.md"
+
+            for content in (
+                "# Policy\n",
+                "## Loop\n\nfirst\n\n## Loop\n\nsecond\n",
+            ):
+                with self.subTest(content=content):
+                    path.write_text(content, encoding="utf-8")
+                    with contextlib.redirect_stderr(io.StringIO()):
+                        with self.assertRaises(SystemExit) as raised:
+                            self.module.extract_markdown_section(path, "Loop")
+                    self.assertEqual(raised.exception.code, 2)
+
+    def test_extract_markdown_section_supports_section_at_eof(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "policy.md"
+            path.write_text("# Policy\n\n## Loop\n\ncontent\n", encoding="utf-8")
+
+            self.assertEqual(
+                self.module.extract_markdown_section(path, "Loop"),
+                "## Loop\n\ncontent\n",
+            )
+
+    def test_extract_markdown_section_ignores_headings_inside_fences(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "policy.md"
+
+            for fence in ("```", "~~~"):
+                with self.subTest(fence=fence):
+                    path.write_text(
+                        "# Policy\n\n"
+                        "## Loop\n\n"
+                        "before\n\n"
+                        f"{fence}markdown\n"
+                        "## Loop\n"
+                        "## Example\n"
+                        f"{fence}\n\n"
+                        "after\n\n"
+                        "## Next\n\n"
+                        "outside\n",
+                        encoding="utf-8",
+                    )
+
+                    self.assertEqual(
+                        self.module.extract_markdown_section(path, "Loop"),
+                        "## Loop\n\n"
+                        "before\n\n"
+                        f"{fence}markdown\n"
+                        "## Loop\n"
+                        "## Example\n"
+                        f"{fence}\n\n"
+                        "after\n\n",
+                    )
+
+    def test_markdown_section_sync_rejects_different_section_text(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            left = root / "left.md"
+            right = root / "right.md"
+            left.write_text("# Left\n\n## Loop\n\nleft\n", encoding="utf-8")
+            right.write_text("# Right\n\n## Loop\n\nright\n", encoding="utf-8")
+
+            with contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as raised:
+                    self.module.ensure_markdown_section_identical(
+                        [left, right],
+                        "Loop",
+                        "test loop",
+                    )
+            self.assertEqual(raised.exception.code, 2)
+
+    def test_text_anchor_check_rejects_missing_contract_anchor(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "policy.md"
+            stderr = io.StringIO()
+
+            with contextlib.redirect_stderr(stderr):
+                with self.assertRaises(SystemExit) as raised:
+                    self.module.ensure_text_anchors(
+                        "portable core\n",
+                        ["portable core", "authority boundary"],
+                        path,
+                        "test policy",
+                    )
+
+            self.assertEqual(raised.exception.code, 2)
+            self.assertIn("authority boundary", stderr.getvalue())
+
+    def test_loop_policy_rejects_source_public_plan_template_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_plan = root / "source-plan.md"
+            public_plan = root / "public-plan.md"
+            plan = (REPO_ROOT / ".plans" / "TEMPLATE.md").read_text(
+                encoding="utf-8"
+            )
+            source_plan.write_text(plan, encoding="utf-8")
+            public_plan.write_text(
+                plan.replace("Criterion 1", "Different criterion", 1),
+                encoding="utf-8",
+            )
+
+            original_source_root = self.module.SOURCE_ROOT
+            self.module.SOURCE_ROOT = root
+            try:
+                stderr = io.StringIO()
+                with contextlib.redirect_stderr(stderr):
+                    with self.assertRaises(SystemExit) as raised:
+                        self.module.ensure_files_identical(
+                            [(source_plan, public_plan)],
+                            "source and public template plan state",
+                        )
+                self.assertEqual(raised.exception.code, 2)
+                self.assertIn(
+                    "source and public template plan state mismatch",
+                    stderr.getvalue(),
+                )
+            finally:
+                self.module.SOURCE_ROOT = original_source_root
+
+    def test_loop_policy_rejects_missing_required_plan_heading(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            plan = Path(tmp) / "plan.md"
+            incomplete_plan = "\n".join(
+                f"## {heading}\n"
+                for heading in self.module.LOOP_POLICY_REQUIRED_PLAN_SECTIONS
+                if heading != "Loop State"
+            )
+            plan.write_text(incomplete_plan, encoding="utf-8")
+
+            with contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as raised:
+                    self.module.ensure_markdown_sections(
+                        plan,
+                        self.module.LOOP_POLICY_REQUIRED_PLAN_SECTIONS,
+                        "test plan",
+                    )
+            self.assertEqual(raised.exception.code, 2)
+
+    def test_loop_policy_rejects_missing_required_plan_state_field(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            plan = Path(tmp) / "plan.md"
+            content = (REPO_ROOT / ".plans" / "TEMPLATE.md").read_text(
+                encoding="utf-8"
+            )
+            plan.write_text(
+                content.replace("- Last material observation:\n", "", 1),
+                encoding="utf-8",
+            )
+
+            with contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as raised:
+                    self.module.ensure_text_anchors(
+                        plan.read_text(encoding="utf-8"),
+                        self.module.LOOP_POLICY_REQUIRED_PLAN_ANCHORS,
+                        plan,
+                        "loop plan template",
+                    )
+            self.assertEqual(raised.exception.code, 2)
+
+    def test_loop_policy_check_rejects_plan_drift_through_registered_wiring(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            agent = root / "AGENTS.md"
+            convention = root / "conventions.md"
+            source_plan = root / "source-plan.md"
+            public_plan = root / "public-plan.md"
+            agent.write_text(
+                (REPO_ROOT / "AGENTS.md").read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+            convention.write_text(
+                (REPO_ROOT / ".project" / "conventions.md").read_text(
+                    encoding="utf-8"
+                ),
+                encoding="utf-8",
+            )
+            plan = (REPO_ROOT / ".plans" / "TEMPLATE.md").read_text(
+                encoding="utf-8"
+            )
+            source_plan.write_text(plan, encoding="utf-8")
+            public_plan.write_text(
+                plan.replace("Criterion 1", "Different criterion", 1),
+                encoding="utf-8",
+            )
+
+            originals = (
+                self.module.SOURCE_ROOT,
+                self.module.LOOP_POLICY_AGENT_FILES,
+                self.module.LOOP_POLICY_CONVENTION_FILES,
+                self.module.LOOP_POLICY_PLAN_TEMPLATES,
+            )
+            self.module.SOURCE_ROOT = root
+            self.module.LOOP_POLICY_AGENT_FILES = [agent]
+            self.module.LOOP_POLICY_CONVENTION_FILES = [convention]
+            self.module.LOOP_POLICY_PLAN_TEMPLATES = [source_plan, public_plan]
+            try:
+                with contextlib.redirect_stderr(io.StringIO()):
+                    with self.assertRaises(SystemExit) as raised:
+                        self.module.check_loop_policy()
+                self.assertEqual(raised.exception.code, 2)
+            finally:
+                (
+                    self.module.SOURCE_ROOT,
+                    self.module.LOOP_POLICY_AGENT_FILES,
+                    self.module.LOOP_POLICY_CONVENTION_FILES,
+                    self.module.LOOP_POLICY_PLAN_TEMPLATES,
+                ) = originals
+
 
 class PublishWorkflowCheckTests(unittest.TestCase):
     @classmethod
