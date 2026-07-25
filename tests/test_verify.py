@@ -170,6 +170,30 @@ class VerifyHelperTests(unittest.TestCase):
             finally:
                 self.module.SOURCE_ROOT = original_source_root
 
+    def test_agent_rule_sync_rejects_source_public_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_rule = root / "source-AGENTS.md"
+            public_rule = root / "public-AGENTS.md"
+            source_rule.write_text("source\n", encoding="utf-8")
+            public_rule.write_text("public\n", encoding="utf-8")
+
+            original_source_root = self.module.SOURCE_ROOT
+            original_groups = self.module.AGENT_RULE_GROUPS
+            original_pairs = self.module.AGENT_RULE_CROSS_SCOPE_PAIRS
+            self.module.SOURCE_ROOT = root
+            self.module.AGENT_RULE_GROUPS = []
+            self.module.AGENT_RULE_CROSS_SCOPE_PAIRS = [(source_rule, public_rule)]
+            try:
+                with contextlib.redirect_stderr(io.StringIO()):
+                    with self.assertRaises(SystemExit) as raised:
+                        self.module.check_agent_rule_sync()
+                self.assertEqual(raised.exception.code, 2)
+            finally:
+                self.module.SOURCE_ROOT = original_source_root
+                self.module.AGENT_RULE_GROUPS = original_groups
+                self.module.AGENT_RULE_CROSS_SCOPE_PAIRS = original_pairs
+
 
 class PublishWorkflowCheckTests(unittest.TestCase):
     @classmethod

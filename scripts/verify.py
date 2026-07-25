@@ -124,17 +124,23 @@ PINNED_ACTION_WORKFLOWS = [
 
 WORKFLOWS_REQUIRING_READ_PERMISSIONS = PINNED_ACTION_WORKFLOWS
 
+AGENT_RULE_FILES = [Path("AGENTS.md"), Path("CLAUDE.md"), Path("GEMINI.md")]
+
 AGENT_RULE_GROUPS = [
     (
         "source repository agent rules",
         SOURCE_ROOT,
-        [Path("AGENTS.md"), Path("CLAUDE.md"), Path("GEMINI.md")],
+        AGENT_RULE_FILES,
     ),
     (
         "public template agent rules",
         PUBLIC_TEMPLATE_ROOT,
-        [Path("AGENTS.md"), Path("CLAUDE.md"), Path("GEMINI.md")],
+        AGENT_RULE_FILES,
     ),
+]
+
+AGENT_RULE_CROSS_SCOPE_PAIRS = [
+    (SOURCE_ROOT / path, PUBLIC_TEMPLATE_ROOT / path) for path in AGENT_RULE_FILES
 ]
 
 ROOT_TEMPLATE_FILES = [
@@ -411,6 +417,11 @@ def check_agent_rule_sync() -> None:
         first = root / paths[0]
         pairs = [(first, root / path) for path in paths[1:]]
         ensure_files_identical(pairs, scope)
+
+    ensure_files_identical(
+        AGENT_RULE_CROSS_SCOPE_PAIRS,
+        "source and public template agent rules",
+    )
 
 
 @register_check("template-sync")
