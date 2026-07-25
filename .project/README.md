@@ -11,6 +11,7 @@ Everything outside that subtree is management-only material for maintaining and 
 - Edit end-user template files only under `coding-agent-project-template/`.
 - Update source-side plans, decisions, and operational docs at the repository root.
 - Review `.project/structure.md` before changing the publish flow.
+- Review `.project/testing.md` before changing verification inputs, phases, or CI wiring.
 
 ## Minimum Setup
 
@@ -22,5 +23,6 @@ Everything outside that subtree is management-only material for maintaining and 
 
 - `.project/conventions.md`
 - `.project/structure.md`
+- `.project/testing.md`
 - `.project/release.md`
 - `.decisions/template-publication-model.md`

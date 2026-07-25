@@ -1,63 +1,141 @@
-version = 1
+version = 2
+
+[selection]
+selector_paths = [
+  ".project/verification.toml",
+  ".template/verification.toml",
+  "coding-agent-project-template/.project/verification.toml",
+  "coding-agent-project-template/.template/verification.toml",
+  "scripts/verify.py",
+  "coding-agent-project-template/scripts/verify.py",
+]
+global_paths = [
+  "AGENTS.md",
+  "CLAUDE.md",
+  "GEMINI.md",
+  ".github/**",
+  ".pre-commit-config.yaml",
+  ".template/ci.yml",
+  ".template/pre-commit-config.yaml",
+  "coding-agent-project-template/.github/**",
+  "coding-agent-project-template/.pre-commit-config.yaml",
+  "coding-agent-project-template/.template/ci.yml",
+  "coding-agent-project-template/.template/pre-commit-config.yaml",
+]
+
+[inputs.repository_contract]
+paths = [
+  "README.md",
+  "renovate.json",
+  ".plans/TEMPLATE.md",
+  ".project/conventions.md",
+  ".template/**",
+  "coding-agent-project-template/**",
+]
+depends_on = []
+
+[inputs.source_verifier]
+paths = ["scripts/**"]
+depends_on = []
+
+[inputs.verifier_tests]
+paths = ["tests/**"]
+depends_on = ["source_verifier"]
+
+# This input is intentionally not referenced by a phase. It marks docs-only changes as known.
+[inputs.maintenance_docs]
+paths = [
+  "README.ja.md",
+  ".project/*.md",
+  ".plans/**",
+  ".decisions/**",
+]
+depends_on = []
 
 [phases.secrets]
 enabled = false
 command = ""
 reason = "gitleaks is not installed in this environment yet. Install gitleaks and set: gitleaks git --no-banner ."
+when = ["changed", "scheduled", "manual"]
+inputs = ["repository_contract"]
 
 [phases.format]
 enabled = false
 command = ""
 reason = "No source-repository formatter is configured."
+when = ["changed", "scheduled", "manual"]
+inputs = ["repository_contract"]
 
 [phases.lint]
 enabled = true
 command = "python3 scripts/verify.py --check source-layout --check public-template --check publish-workflow --check github-actions --check agent-rule-sync --check template-sync --check loop-policy"
+when = ["changed", "scheduled", "manual"]
+inputs = ["repository_contract"]
 
 [phases.typecheck]
 enabled = true
 command = "python3 scripts/verify.py --check python-syntax"
+when = ["changed", "scheduled", "manual"]
+inputs = ["verifier_tests"]
 
 [phases.build]
 enabled = false
 command = ""
 reason = "This repository publishes files and workflows but has no build step."
+when = ["changed", "scheduled", "manual"]
+inputs = ["repository_contract"]
 
 [phases.test_unit]
 enabled = true
 command = "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests"
+when = ["changed", "scheduled", "manual"]
+inputs = ["verifier_tests"]
 
 [phases.test_integration]
 enabled = false
 command = ""
 reason = "Publishing integration is exercised in GitHub Actions."
+when = ["changed", "scheduled", "manual"]
+inputs = ["repository_contract"]
 
 [phases.test_e2e]
 enabled = false
 command = ""
 reason = "No end-to-end test suite is configured."
+when = ["changed", "scheduled", "manual"]
+inputs = ["repository_contract"]
 
 [phases.test_component]
 enabled = false
 command = ""
 reason = "No component test suite is configured."
+when = ["changed", "scheduled", "manual"]
+inputs = ["repository_contract"]
 
 [phases.test_contract]
 enabled = false
 command = ""
 reason = "No contract test suite is configured."
+when = ["changed", "scheduled", "manual"]
+inputs = ["repository_contract"]
 
 [phases.accessibility]
 enabled = false
 command = ""
 reason = "This repository does not ship UI surfaces."
+when = ["changed", "scheduled", "manual"]
+inputs = ["repository_contract"]
 
 [phases.performance]
 enabled = false
 command = ""
 reason = "No performance benchmark is configured."
+when = ["changed", "scheduled", "manual"]
+inputs = ["repository_contract"]
 
 [phases.bundle_size]
 enabled = false
 command = ""
 reason = "This repository does not produce bundles."
+when = ["changed", "scheduled", "manual"]
+inputs = ["repository_contract"]
